@@ -1,9 +1,9 @@
-// api.js — модуль для взаимодействия с Shikimori
+// api.js — для работы с Shikimori API
 
 const API_BASE = "https://shikimori.io";
 const PAGE_SIZE = 50;
 
-// Получить каталог аниме (страница, поиск, жанры)
+// Получить каталог аниме по параметрам (страница, поисковый запрос, жанры)
 export async function getCatalog({ page = 1, query = "", genres = [] } = {}) {
   let params = [
     `limit=${PAGE_SIZE}`,
@@ -12,7 +12,7 @@ export async function getCatalog({ page = 1, query = "", genres = [] } = {}) {
     `kind=tv`
   ];
   if (query) params.push('search=' + encodeURIComponent(query.trim()));
-  // Жанры добавляем только если есть выбранные жанры!
+  // Жанры добавляем только если есть выбранные жанры
   if (genres && genres.length > 0)
     params.push('genre=' + genres.join(','));
 
@@ -32,7 +32,7 @@ export async function getCatalog({ page = 1, query = "", genres = [] } = {}) {
           nameOriginal: a.name,
           poster: a.image?.preview
             ? API_BASE + a.image.preview
-            : "assets/osaka-logo.png",
+            : "osaka-logo.png", // твой логотип как заглушка
           score: a.score,
           episodes: a.episodes,
           kind: a.kind,
@@ -51,7 +51,7 @@ export async function getCatalog({ page = 1, query = "", genres = [] } = {}) {
   };
 }
 
-// Получить все жанры
+// Получить жанры для фильтрации (один раз, кэшировать не обязательно)
 export async function getGenres() {
   const url = `${API_BASE}/api/genres`;
   const resp = await fetch(url);
@@ -59,7 +59,7 @@ export async function getGenres() {
   return await resp.json();
 }
 
-// Получить детальную инфу о тайтле по id
+// Получить инфу о тайтле по id (страница аниме)
 export async function getAnime(id) {
   const url = `${API_BASE}/api/animes/${id}`;
   const resp = await fetch(url);
@@ -71,7 +71,7 @@ export async function getAnime(id) {
     nameOriginal: data.name,
     poster: data.image?.original
       ? API_BASE + data.image.original
-      : "assets/osaka-logo.png",
+      : "osaka-logo.png",
     score: data.score,
     episodes: data.episodes,
     kind: data.kind,
