@@ -1,146 +1,116 @@
 import { getCatalog, getAnime, getGenres } from './api.js';
 import { providers } from './providers.js';
 
-const main = document.getElementById('main-content');
+let genresCache = [];
+let selectedGenres = [];
+let currentQuery = "";
+
+const grid = document.getElementById('anime-grid');
 const genrePanel = document.getElementById('genre-panel');
 const searchForm = document.getElementById('search-form');
 const searchInput = document.getElementById('search-input');
+const catalogEnd = document.getElementById('catalog-end');
+const modal = document.getElementById('modal-detail');
+let page = 1, all = [], loading=false, hasMore=true, observer=null;
 
-let genresList = [];
-let selectedGenres = [];
-let query = "";
-let page = 1;
-let allAnimes = [];
-let hasMore = true;
-let loading = false;
-let observer = null;
-
-// ==== Жанры как на шики ====
-async function setupGenres() {
-  genresList = await getGenres();
+async function loadGenres() {
+  genresCache = await getGenres();
   genrePanel.innerHTML = '';
-  genresList.forEach(g => {
-    const chip = document.createElement('button');
-    chip.className = 'genre-chip' + (selectedGenres.includes(g.id) ? ' selected' : '');
-    chip.textContent = g.russian;
-    chip.onclick = () => {
-      if (selectedGenres.includes(g.id)) {
-        selectedGenres = selectedGenres.filter(id => id !== g.id);
-      } else {
+  genresCache.forEach(g => {
+    const btn = document.createElement('button');
+    btn.className = 'genre-chip';
+    btn.textContent = g.russian;
+    if (selectedGenres.includes(g.id)) btn.classList.add('selected');
+    btn.onclick = () => {
+      if (selectedGenres.includes(g.id))
+        selectedGenres = selectedGenres.filter(id=>id!==g.id);
+      else
         selectedGenres.push(g.id);
-      }
-      renderCatalog(true);
+      page=1; all=[]; hasMore=true; renderCatalog(true);
+      loadGenres();
     };
-    genrePanel.appendChild(chip);
+    genrePanel.appendChild(btn);
   });
-  // кнопка сброса справа
-  const reset = document.createElement('button');
-  reset.className = 'genre-chip';
-  reset.textContent = 'Сбросить';
-  reset.onclick = () => { selectedGenres = []; renderCatalog(true); };
-  genrePanel.appendChild(reset);
 }
+document.getElementById('genres-reset').onclick = () => {
+  selectedGenres = [];
+  page=1; all=[]; hasMore=true; renderCatalog(true);
+  loadGenres();
+};
 
-async function renderCatalog(clear = false) {
-  if (loading) return;
-  loading = true;
-  if (clear) {
-    allAnimes = [];
-    page = 1;
-    main.innerHTML = `<div class="anime-grid" id="anime-grid"></div>`;
-    document.getElementById('anime-grid').innerHTML = skeletonGrid();
+searchForm.onsubmit = e => {
+  e.preventDefault();
+  currentQuery = searchInput.value.trim();
+  page = 1; all=[]; hasMore=true; renderCatalog(true);
+};
+searchInput.oninput = e => {
+  if (searchInput.value==='') {
+    currentQuery = "";
+    page=1; all=[]; hasMore=true; renderCatalog(true);
   }
-  const grid = document.getElementById('anime-grid') || document.createElement('div');
-  const { items, hasMore:more } = await getCatalog({page, query, genres:selectedGenres});
-  allAnimes = clear ? items : allAnimes.concat(items);
-  hasMore = more;
+};
+
+async function renderCatalog(clear=false) {
+  if (loading || !hasMore) return;
+  loading=true;
+  if (clear) { grid.innerHTML=''; catalogEnd.innerHTML=''; }
+  const {items, hasMore:more} = await getCatalog({page, query:currentQuery, genres:selectedGenres});
+  all = clear ? items : all.concat(items);
+  hasMore=more;
   grid.innerHTML = '';
-  allAnimes.forEach(anime => grid.appendChild(animeTile(anime)));
-  if (!grid.parentElement) main.appendChild(grid);
-  // бесконечная прокрутка
+  all.forEach(anime=>{
+    grid.appendChild(createTile(anime));
+  });
   if (observer) observer.disconnect();
   if (hasMore) {
-    const marker = document.createElement('div'); marker.style.height='32px';
+    const marker = document.createElement('div'); marker.style.height='17px';
     observer = new IntersectionObserver(entries=>{
       if (entries[0].isIntersecting && !loading) {
         page++; renderCatalog();
       }
     });
-    observer.observe(marker);
-    grid.appendChild(marker);
+    observer.observe(marker); catalogEnd.innerHTML=''; catalogEnd.appendChild(marker);
   }
-  loading = false;
+  loading=false;
 }
-
-function skeletonGrid() {
-  return Array(8).fill(0).map(()=>`<div class="anime-tile skeleton"></div>`).join('');
-}
-
-function animeTile(anime) {
-  const div = document.createElement('div');
-  div.className = 'anime-tile';
-  div.onclick = () => showAnime(anime.id);
+function createTile(anime) {
+  const div = document.createElement('div'); div.className='anime-tile';
   div.innerHTML = `
-    <img src="${anime.poster}" class="anime-poster" alt="${anime.name}" onerror="this.src='assets/osaka-logo.png'">
-    <div class="tile-info">
-      <div class="tile-title">${anime.name}</div>
-      <div class="tile-rating">★ ${anime.score || ''}</div>
-      <div class="tile-genre">${anime.genres.join(', ')}</div>
-    </div>
+    <img src="${anime.poster}" alt="${anime.name}" onerror="this.src='assets/osaka-logo.png'">
+    <div class="tile-title">${anime.name}</div>
+    <div class="tile-rating">★ ${anime.score||''}</div>
+    <div class="tile-genre">${anime.genres.join(', ')}</div>
   `;
+  div.onclick = ()=>showAnime(anime.id);
   return div;
 }
-
 async function showAnime(id) {
-  main.innerHTML = `
-    <div class="anime-detail"><div style="width:235px"></div>
-    <div class="detail-info">Загрузка...</div></div>`;
+  modal.style.display='flex';
+  modal.innerHTML = `<div class="anime-detail">Загрузка...<button class="close-detail">&times;</button></div>`;
   const anime = await getAnime(id);
-  // Ссылки "где смотреть"
-  const links = await Promise.all(providers.map(p=>p.getLink(anime)));
-  const filtered = links.filter(Boolean);
-  // Genres
-  const genresHTML = anime.genres.map(g=>`<span class="genre-chip selected" style="pointer-events:none;margin-right:5px;margin-bottom:4px;">${g}</span>`).join('');
-  main.innerHTML = `
-    <div class="anime-detail">
-      <img src="${anime.poster}" class="detail-poster" alt="${anime.name}" onerror="this.src='assets/osaka-logo.png'">
-      <div class="detail-info">
-        <div class="detail-title">${anime.name}</div>
-        <div class="detail-rating">★ ${anime.score || ''} · ${anime.episodes} эп.</div>
-        <div class="detail-genres">${genresHTML}</div>
-        <div class="detail-desc">${stripHTML(anime.description)}</div>
-        <div class="watch-block"><b>Где смотреть:</b>
-          <div class="watch-list">${
-            filtered.length ? filtered.map(link => `
-              <a href="${link.url}" class="watch-link" target="_blank" rel="noopener">
-                <span class="watch-site">${link.site}</span>
-                <span class="watch-type">[${link.type}]</span>
-                <span class="watch-btn">Перейти</span>
-              </a>
-            `).join('') : '<div style="color:#e44;">Нет подходящих сайтов</div>'
-          }</div>
-        </div>
-        <button class="watch-btn" style="margin-top:27px;" onclick="location.reload()">← К каталогу</button>
+  const links = (await Promise.all(providers.map(p=>p.getLink(anime)))).filter(Boolean);
+  modal.innerHTML = `
+  <div class="anime-detail">
+    <button class="close-detail">&times;</button>
+    <img src="${anime.poster}" alt="">
+    <h1>${anime.name}</h1>
+    <div class="rating">★ ${anime.score||''} | ${anime.episodes} эп.</div>
+    <div class="genres">${anime.genres.join(', ')}</div>
+    <div class="descr">${stripHTML(anime.description)}</div>
+    <div class="watch-block">
+      <b>Где смотреть:</b>
+      <div class="watch-list">
+      ${links.length ? links.map(link=>
+        `<a href="${link.url}" target="_blank" rel="noopener">${link.site} [${link.type}]</a>`).join('')
+        : '<div style="color:#f74;margin:10px 0;">Нет сайтов для просмотра</div>'}
       </div>
     </div>
-  `;
+  </div>`;
+  modal.querySelector('.close-detail').onclick = ()=> {modal.style.display='none';};
 }
-
 function stripHTML(html) {
   const div = document.createElement('div'); div.innerHTML = html;
   return div.textContent || div.innerText || '';
 }
 
-searchForm.onsubmit = e => {
-  e.preventDefault();
-  query = searchInput.value || "";
-  renderCatalog(true);
-};
-searchInput.oninput = e => {
-  if (!searchInput.value) { query = ""; renderCatalog(true);}
-};
-
-window.onload = async () => {
-  await setupGenres();
-  renderCatalog(true);
-};
+window.onload = async () => { await loadGenres(); renderCatalog(true);}
