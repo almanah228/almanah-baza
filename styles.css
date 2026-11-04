@@ -1,194 +1,123 @@
-:root {
-  --bg: #1b1c20;
-  --block: #22232b;
-  --tile: #22232b;
-  --tile-hover: #232336;
-  --border: #2e2e45;
-  --accent: #6bbaf7;
-  --accent2: #a18fff;
-  --text: #ececf2;
-  --muted: #c5c7d0;
-  --radius: 17px;
-}
-
 body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Montserrat', Arial, sans-serif;
-  margin: 0;
+  background: #23232b;
+  min-height:100vh;
+  margin:0;
+  font-family:'Montserrat',Arial,sans-serif;
+}
+.layout-bg {
+  position:fixed; inset:0; z-index:-1;
+  background: #1f1f25 url('https://shikimori.one/assets/bg-pattern.png') repeat;
+  opacity: 0.9;
 }
 
 .shiki-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position:sticky;
-  top:0;
-  background: var(--block);
-  height: 68px;
-  box-shadow: 0 2px 14px #191d24a6;
-  padding: 0 28px 0 20px;
-  z-index: 10;
+  width:100%; height:66px; background: #23232b;
+  display:flex; align-items:center; gap:23px;
+  box-shadow: 0 1px 12px #13151b9a;
+  padding: 0 34px 0 26px;
+  font-size:1.20em; letter-spacing:.045em;
 }
 
-.logo-block {
-  display:flex;
-  align-items:center;
-  gap: 15px;
-}
-
-.logo-img {
-  width: 46px; height: 46px; border-radius: 50%; background: #fff; object-fit: cover;
-}
-.site-title {
-  font-size:1.29rem;
-  font-weight:700;
-  letter-spacing:.04em;
-}
-.shiki-search {
-  display: flex; align-items:center; gap:8px;
-}
+.logo-img { width: 42px; height: 42px; border-radius:50%; background:#fff; }
+.site-title { font-weight:700; font-size:1.19em;}
+.shiki-search { margin-left:auto; display:flex; gap:5px;}
 .shiki-search input {
-  border: none; border-radius: var(--radius);
-  font-size: 1rem;
-  padding: 7px 14px;
-  background: var(--tile);
-  color: var(--text);
-  outline: none;
-  width: 160px;
-  transition:.18s background;
-}
-.shiki-search input:focus {
-  background: var(--tile-hover);
+  padding:6px 15px; border-radius:8px; border:none; outline:none;
+  background:#1b1b1f; color:#ececf2; font-size:1.02em; width:172px;
 }
 .shiki-search button {
-  background: var(--accent2); color:var(--text);
-  border:none; border-radius:var(--radius);
-  font-weight:700; font-size:1.1em; padding:7px 15px;
-  cursor:pointer; transition:.2s background;
+  background:#a19cff; color:#222; border:none; border-radius:8px;
+  font-size:1em; padding:6px 17px; cursor:pointer;
 }
-.shiki-search button:hover { background: var(--accent);}
-main {max-width:1380px; margin:44px auto 0 auto; padding: 0 2vw; }
-
-
-/* ГЕНРЫ */
-.genre-panel {
-  max-width: 1380px;
-  margin: 22px auto 0 auto; padding: 0 2vw;
-  display: flex; gap:12px; flex-wrap:wrap;
+.shiki-search button:hover { background:#6bbaf7; color:#fff;}
+.main-center {
+  display: flex; justify-content:center; max-width:1300px; margin:40px auto 0 auto; min-height: 70vh;
 }
+
+.genres-side {
+  background: #f5f5fa09; color:#ececf2;
+  padding:22px 13px 18px 27px; width:205px; min-width:200px;
+  margin-right:22px; border-radius:13px;
+  box-shadow:0 0 10px #23232b45;
+  font-size:.94em;
+}
+.genres-side h3 {margin:7px 0 12px 0; font-weight:700;}
 .genre-chip {
-  border-radius: 12px;
-  background: var(--tile);
-  padding: 7px 16px; color:var(--muted);
-  cursor: pointer; font-size: .95rem; border:none;
-  transition:.17s background, .12s color;
-  border:1px solid var(--border);
+  display:block; background:#fff2; color:#7c8be7;
+  border:none; border-radius:8px; padding:7px 14px;
+  font-weight:600; margin-bottom:5px; text-align:left;
+  cursor:pointer; transition:.13s;
 }
-.genre-chip.selected {
-  background: var(--accent2); color:#fff; border:1.5px solid var(--accent2);
+.genre-chip.selected, .genre-chip:active {
+  background:#a19cff; color:#fff;
 }
-.genre-chip:hover {background:var(--accent); color:#fff;}
+.genre-chip.reset {margin-top:14px; color:#a88; background:#fefefe13;}
+.genre-chip:hover:not(.reset):not(.selected) { background:#6bbaf7; color:#fff; }
 
-/* КАТАЛОГ */
+/* центральная сетка */
+.center-block {
+  flex:1 1 0%; max-width:1100px; min-width:600px;
+  background: #23232bd6; border-radius: 18px;
+  box-shadow:0 6px 45px #23234566;
+  padding: 22px 14px 50px 20px;
+}
+
 .anime-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(204px,1fr));
-  gap: 23px 16px;
-  margin-bottom:36px;
+  grid-template-columns: repeat(auto-fill,minmax(172px,1fr));
+  gap: 22px 13px;
 }
+
 .anime-tile {
-  background: var(--tile);
-  border-radius: var(--radius);
-  border: 1.2px solid var(--border);
-  box-shadow: 0 4px 18px #0d14202a;
-  overflow:hidden;
-  display:flex; flex-direction:column;
-  cursor:pointer; transition:.16s box-shadow, .12s border;
+  display:flex; flex-direction:column; align-items:center;
+  background:#fff; color:#19191c; border-radius:12px;
+  box-shadow: 0 3px 13px #23233619;
+  cursor:pointer; transition:.14s transform, .15s box-shadow;
+  border:2px solid #ffffff10; overflow:hidden;
+  height:280px;
 }
 .anime-tile:hover {
-  border: 1.2px solid var(--accent2);
-  background: var(--tile-hover);
-  box-shadow: 0 7px 28px #386fa655;
+  box-shadow:0 7px 32px #7a8bff25;
+  transform:scale(1.045);
+  border:2.3px solid #a19cff;
 }
-.anime-poster {
-  width: 100%; height:310px;
-  object-fit:cover; background:#181821;
-  display:block;
-}
-.tile-info {
-  padding: 13px 18px 12px 15px; flex:1 1 auto;
+.anime-tile img {
+  width:100%; height:191px; object-fit:cover; display:block; background:#eee;
 }
 .tile-title {
-  font-size: 1.02rem; font-weight:700; margin-bottom:7px;
+  margin-top:6px; margin-bottom:4px;
+  font-weight:700; color:#262648; font-size:.99em; text-align:center; line-height:1.05; max-height:2em; overflow:hidden;
 }
 .tile-rating {
-  color: var(--accent); font-weight:700; margin-bottom:5px;
+  color:#2d91db; font-weight:700; font-size:.97em; text-align:center; margin-bottom:2px;
 }
 .tile-genre {
-  font-size:.92rem; color: var(--muted);
-  white-space:pre-line; word-break:break-word; line-height:1.7;
+  font-size:.80em; color:#6e6e87; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 
-/* СТРАНИЦА ТАЙТЛА */
+/* страница аниме, упрощённая копия */
+#modal-detail {
+  position:fixed; z-index:99; inset:0; background:rgba(28,32,38,0.96);
+  display:flex; align-items:center; justify-content:center;
+}
 .anime-detail {
-  display:flex; gap:30px; align-items: flex-start;
-  max-width:1050px; background:var(--block); border-radius:var(--radius);
-  margin:0 auto 60px auto; box-shadow:0 3px 21px #100e222e;
-  padding:36px 35px 32px 30px;
+  background:#fdfdfd; color:#2b2d42; border-radius:19px;
+  width:520px; max-width:96vw; padding:38px 30px 30px 30px;
+  box-shadow:0 8px 46px #1a1a2730;
+  position:relative;
 }
-@media (max-width:960px){
-  .anime-detail { flex-direction:column; align-items:center; padding:20px 12px}
+.anime-detail img {width:170px; height:250px; border-radius:8px; float:left; margin-right:18px; object-fit:cover;}
+.anime-detail h1 {font-size:1.45em;margin-bottom:8px;}
+.anime-detail .rating {color:#2d91db;font-weight:700;font-size:1em;margin-bottom:5px;}
+.anime-detail .genres {color:#a19cff;font-size:.89em;margin-bottom:9px;}
+.anime-detail .descr {color:#475;padding-right:8px;font-size:.98em;margin-bottom:15px;}
+.anime-detail .watch-block {margin-top:18px;}
+.anime-detail .watch-block b {font-weight:700;}
+.anime-detail .watch-list a {
+  color:#fff;background:#a19cff;padding:6px 18px;margin:2px 0;display:inline-block;border-radius:7px;text-decoration:none;font-size:.98em;transition:.13s;
 }
-
-.detail-poster {
-  width:235px; height:340px; object-fit:cover; border-radius:14px; background:#181820;
-  box-shadow: 0 5px 30px #0f14314f;
-  margin-bottom:8px;
+.anime-detail .watch-list a:hover {background:#6bbaf7;}
+.anime-detail .close-detail {
+  position:absolute;top:20px;right:20px;
+  background:none; border:none; color:#8a8a98; font-size:1.2em; cursor:pointer;
 }
-.detail-info {
-  flex:1 1 0%;
-}
-.detail-title {
-  font-size:2rem; font-weight:700; margin-bottom:7px;
-}
-.detail-rating {
-  color:var(--accent); font-size:1.14rem; font-weight:700;
-  margin-bottom:8px;
-}
-.detail-genres {
-  margin-bottom:13px; font-size:1.01rem; color:var(--muted); font-weight:600;
-}
-
-/* БЛОК ГДЕ СМОТРЕТЬ */
-.watch-block {margin:26px 0 0 0;}
-.watch-list {
-  display: flex; flex-direction: column; gap:9px;
-  margin-top:7px;
-}
-.watch-link {
-  display: flex; align-items:center; gap:13px;
-  background:var(--tile); border-radius:9px;
-  padding: 9px 17px;
-  color: var(--text); text-decoration: none;
-  font-size: 1.04rem;
-  border: 1.1px solid var(--border);
-  transition:.14s background;
-}
-.watch-link:hover { background:var(--accent2); color:#fff;}
-.watch-site {font-weight:700;}
-.watch-type {font-size:.93em; color:#aac2ee;}
-.watch-btn {
-  margin-left:auto;
-  background:var(--accent2); color:var(--bg);
-  border:none; border-radius:6px; padding:5px 14px; font-weight:700;
-  font-size:.96rem; cursor:pointer; transition:.2s background;
-}
-.watch-btn:hover {background: var(--accent);}
-.detail-desc {
-  margin-top:15px; font-size: 1.02rem; line-height:1.66;
-}
-.skeleton { background: #23232c; border-radius: 15px; min-height:330px; }
-
-::-webkit-scrollbar {width:11px; background:#16171d;}
-::-webkit-scrollbar-thumb {background:#222232; border-radius:8px;}
