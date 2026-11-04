@@ -81,25 +81,35 @@ function createTile(anime) {
 async function showAnime(id) {
   modal.style.display='flex';
   modal.innerHTML = `<div class="anime-detail">Загрузка...<button class="close-detail">&times;</button></div>`;
-  const anime = await getAnime(id);
-  const links = (await Promise.all(providers.map(p=>p.getLink(anime)))).filter(Boolean);
-  modal.innerHTML = `
-  <div class="anime-detail">
-    <button class="close-detail">&times;</button>
-    <img src="${anime.poster}" alt="">
-    <h1>${anime.name}</h1>
-    <div class="rating">★ ${anime.score||''} | ${anime.episodes} эп.</div>
-    <div class="genres">${anime.genres.join(', ')}</div>
-    <div class="descr">${stripHTML(anime.description)}</div>
-    <div class="watch-block"><b>Где смотреть:</b>
-      <div class="watch-list">
-      ${links.length ? links.map(link=>
-        `<a href="${link.url}" target="_blank" rel="noopener">${link.site} [${link.type}]</a>`).join('')
-        : '<div style="color:#b44;padding:8px 0;">Нет сайтов для просмотра</div>'}
-      </div>
-    </div>
-  </div>`;
-  modal.querySelector('.close-detail').onclick = ()=> {modal.style.display='none';};
+  try {
+    const anime = await getAnime(id);
+    const links = (await Promise.all(providers.map(p=>p.getLink(anime)))).filter(Boolean);
+
+    modal.innerHTML = `
+      <div class="anime-detail">
+        <button class="close-detail">&times;</button>
+        <img src="${anime.poster}" alt="">
+        <h1>${anime.name}</h1>
+        <div class="rating">★ ${anime.score||''} | ${anime.episodes} эп.</div>
+        <div class="genres">${anime.genres.join(', ')}</div>
+        <div class="descr">${stripHTML(anime.description)}</div>
+        <div class="watch-block">
+          <b>Где смотреть:</b>
+          <div class="watch-list">
+          ${links.length ? links.map(link=>
+            `<a href="${link.url}" target="_blank" rel="noopener">${link.site} [${link.type}]</a>`).join('')
+            : '<div style="color:#b44;padding:8px 0;">Нет сайтов для просмотра</div>'}
+          </div>
+        </div>
+      </div>`;
+    modal.querySelector('.close-detail').onclick = ()=> {modal.style.display='none';};
+  } catch(err) {
+    modal.innerHTML = `<div class="anime-detail">
+      <button class="close-detail">&times;</button>
+      <div style="color:#b44;margin:14px 0;">Ошибка загрузки данных о аниме.</div>
+    </div>`;
+    modal.querySelector('.close-detail').onclick = ()=> {modal.style.display='none';};
+  }
 }
 function stripHTML(html) {
   const div = document.createElement('div'); div.innerHTML = html;
