@@ -1,5 +1,5 @@
 import { getCatalog, getAnime } from './api.js';
-import { providers } from './providers.js';
+import { providers_ru, providers_en } from './providers.js';
 
 const grid = document.getElementById('anime-grid');
 const searchForm = document.getElementById('search-form');
@@ -17,11 +17,11 @@ searchForm.onsubmit = e => {
 function createTile(anime) {
   const div = document.createElement('div'); div.className='anime-tile';
   div.innerHTML = `
-    <img src="${anime.poster}" alt="${anime.name}" onerror="this.src='assets/osaka-logo.png'">
+    <img src="${anime.poster}" alt="${anime.name}" onerror="this.src='assets/logo.png'">
     <div class="tile-title">${anime.name}</div>
     <div class="tile-rating">★ ${anime.score||''}</div>
   `;
-  div.onclick = ()=>showAnime(anime.id);
+  div.onclick = () => showAnime(anime.id);
   return div;
 }
 
@@ -54,20 +54,51 @@ async function showAnime(id) {
   modal.innerHTML = `<div class="anime-detail">Загрузка...<button class="close-detail">&times;</button></div>`;
   try {
     const anime = await getAnime(id);
-    const links = providers.map(p => p.getLink(anime));
 
+    let currentType = 'RU';
+    let providersUsed = providers_ru;
+
+    function renderLinksSwitcher() {
+      return `
+      <div style="display:flex;gap:9px;margin-bottom:10px;">
+        <button id="ru-btn" class="switch-btn${currentType==='RU'?' act':''}">РУ</button>
+        <button id="en-btn" class="switch-btn${currentType==='EN'?' act':''}">EN</button>
+      </div>
+      <div class="watch-list">
+        ${providersUsed.map(linkP => {
+          const link = linkP.getLink(anime);
+          return `<a href="${link.url}" target="_blank" rel="noopener">${link.site}</a>`;
+        }).join('')}
+      </div>
+      `;
+    }
     modal.innerHTML = `
       <div class="anime-detail">
         <button class="close-detail">&times;</button>
         <img src="${anime.poster}" alt="">
         <h1>${anime.name}</h1>
-        <div class="rating">★ ${anime.score||''} | ${anime.episodes||''} эп.</div>
         <div class="descr">${stripHTML(anime.description)}</div>
-        <div class="watch-list">
-          ${links.map(link => `<a href="${link.url}" target="_blank" rel="noopener">${link.site} [${link.type}]</a>`).join('')}
+        <div id="links-switch">
+          ${renderLinksSwitcher()}
         </div>
       </div>`;
+    const $switchBlock = modal.querySelector('#links-switch');
     modal.querySelector('.close-detail').onclick = ()=> {modal.style.display='none';};
+    function setHandlers() {
+      if ($switchBlock) {
+        if (modal.querySelector('#ru-btn'))
+          modal.querySelector('#ru-btn').onclick = () => {
+            currentType = 'RU'; providersUsed = providers_ru;
+            $switchBlock.innerHTML = renderLinksSwitcher(); setHandlers();
+          }
+        if (modal.querySelector('#en-btn'))
+          modal.querySelector('#en-btn').onclick = () => {
+            currentType = 'EN'; providersUsed = providers_en;
+            $switchBlock.innerHTML = renderLinksSwitcher(); setHandlers();
+          }
+      }
+    }
+    setHandlers();
   } catch(err) {
     modal.innerHTML = `<div class="anime-detail">
       <button class="close-detail">&times;</button>
@@ -80,5 +111,4 @@ function stripHTML(html) {
   const div = document.createElement('div'); div.innerHTML = html;
   return div.textContent || div.innerText || '';
 }
-
-window.onload = ()=> { renderCatalog(true);}
+window.onload = () => { renderCatalog(true);}
