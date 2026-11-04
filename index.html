@@ -4,16 +4,18 @@
   <meta charset="UTF-8">
   <title>Альманах База</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap">
+  <!-- Plyr player CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg-dark: #121214;
       --card-bg: rgba(34,37,53,0.74);
       --blur: blur(8px);
-      --accent: #70e9f8;
-      --accent2: #a484ff;
+      --accent:a484ff;
       --active: #9e71fe;
-      --radius12: 12px;
+      -- #70e9f8;
+      --accent2: #radius12: 12px;
       --radius16: 16px;
       --shadow: 0 2px 24px 0 #11171c73, 0 1px 1.5px 0 #46209336;
       --trans: 0.17s cubic-bezier(.53,.21,.29,.67);
@@ -66,6 +68,7 @@
       .logo-avatar { width:38px; height:38px; margin-left:12px; }
       .logo-text { font-size: 1.12rem; }
     }
+    /* Каталог */
     #catalog-screen { padding:34px 4vw 70px 4vw; }
     .anime-grid {
       display: grid;
@@ -210,12 +213,8 @@
       display:flex; flex-direction:column; align-items:center;
       backdrop-filter: var(--blur);
     }
-    .collaps-iframe {
-      width:100%; min-height:410px;
-      border:none; border-radius:var(--radius12);
-      background:#000;
-      box-shadow:0 1.5px 13px 2px var(--accent2)26;
-      margin-bottom:13px;
+    .plyr__poster {
+      background: #232334 !important;
     }
     .player-controls-row {
       display:flex; flex-wrap:wrap; gap:14px;
@@ -277,7 +276,9 @@
 <body>
   <nav class="nav-bar">
     <div class="logo-avatar">
-      <img src="https://static.wikia.nocookie.net/azumanga/images/8/8b/Ayumu_Osaka_Kasuga.png" alt="Osaka Logo" onerror="this.outerHTML='<svg width=54 height=54 viewBox=0 0 54 54 xmlns=&quot;http://www.w3.org/2000/svg&quot;><circle cx=27 cy=27 r=26 fill=&quot;#471cc9&quot; stroke=&quot;#7df0fa&quot; stroke-width=4/><text x=50% y=54% text-anchor=&quot;middle&quot; fill=&quot;#fff&quot; font-size=14 font-family=Montserrat,Arial,sans-serif dy=.3em>Osaka Logo</text></svg>';">
+      <img src="https://static.wikia.nocookie.net/azumanga/images/8/8b/Ayumu_Osaka_Kasuga.png"
+           alt="Osaka Logo"
+           onerror="this.outerHTML='<svg width=54 height=54 viewBox=0 0 54 54 xmlns=&quot;http://www.w3.org/2000/svg&quot;><circle cx=27 cy=27 r=26 fill=&quot;#471cc9&quot; stroke=&quot;#7df0fa&quot; stroke-width=4/><text x=50% y=54% text-anchor=&quot;middle&quot; fill=&quot;#fff&quot; font-size=14 font-family=Montserrat,Arial,sans-serif dy=.3em>Osaka Logo</text></svg>';"/>
     </div>
     <span class="logo-text">Альманах База</span>
   </nav>
@@ -301,50 +302,45 @@
     </div>
     <div class="player-wrap">
       <div class="player-controls-row">
-        <!-- Кнопку можно реализовать позже, Collaps не всех поддерживает skip -->
+        <button class="ctrl-btn" id="skip-op-btn">⏭️ Пропустить опенинг</button>
       </div>
-      <iframe class="collaps-iframe" id="collaps-iframe" allowfullscreen allow="autoplay *; fullscreen *; encrypted-media" referrerpolicy="no-referrer"></iframe>
+      <video id="custom-player" controls
+        poster=""
+        playsinline
+        tabindex="0"
+        style="width:100%;max-width:960px;border-radius:16px;background:#232334;"></video>
       <div class="seria-bar" id="seria-bar"></div>
+      <div id="anilibria-attribution" style="color:#666;font-size:.88em;text-align:right;width:100%;opacity:.77;margin-top:8px;">Потоки: <a href="https://anilibria.tv" target="_blank" style="color:#70e9f8;text-decoration:none;">AniLibria.TV</a></div>
     </div>
   </div>
+
+  <!-- Plyr JS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.polyfilled.min.js"></script>
 <script>
-// ==================== Актуальная база сериалов
+/**
+ * --- 1. Каталог статичный: только аниме, реально существующие в AniLibria (русские названия, чтобы искать было проще)
+ */
 const animeList = [
-  {id: 48583, title:"Chainsaw Man", genres:["Экшен","Суперспособности"], poster:"https://shikimori.io/system/animes/original/48583.jpg", rating:8.57, episodes:12, description:"История парня-девола Дэндзи с мотором-бензопилой."},
-  {id: 38000, title:"Kimetsu no Yaiba", genres:["Экшен","Демоны"], poster:"https://shikimori.io/system/animes/original/38000.jpg", rating:8.59, episodes:26, description:"Клинок рассекающий демонов: мальчик мстит демонам."},
-  {id: 21, title:"One Piece", genres:["Приключения","Комедия"], poster:"https://shikimori.io/system/animes/original/21.jpg", rating:8.72, episodes:1000, description:"Эпическая сага о пиратах и поиске One Piece."},
-  {id: 5114, title:"Fullmetal Alchemist: Brotherhood", genres:["Экшен","Фэнтези"], poster:"https://shikimori.io/system/animes/original/5114.jpg", rating:9.12, episodes:64, description:"Железный алхимик. История братьев Элриков."},
-  {id: 9253, title:"Steins;Gate", genres:["Фантастика","Детектив"], poster:"https://shikimori.io/system/animes/original/9253.jpg", rating:9.11, episodes:24, description:"Петля времени и микроволновка. Научный триллер."},
-  {id: 4181, title:"Clannad: After Story", genres:["Драма","Романтика"], poster:"https://shikimori.io/system/animes/original/4181.jpg", rating:9.01, episodes:24, description:"Эмоциональная драма о жизни, семье и любви."},
-  {id: 820, title:"Gurren Lagann", genres:["Меха","Экшен"], poster:"https://shikimori.io/system/animes/original/820.jpg", rating:8.78, episodes:27, description:"Симон, Камина и бурение стен Вселенной!"},
-  {id: 34572, title:"Made in Abyss", genres:["Приключения","Фэнтези"], poster:"https://shikimori.io/system/animes/original/34572.jpg", rating:8.80, episodes:13, description:"Дети исследуют губительный мир Бездны."},
-  {id: 37987, title:"Yakusoku no Neverland", genres:["Детектив","Психология"], poster:"https://shikimori.io/system/animes/original/37987.jpg", rating:8.53, episodes:12, description:"Страшная правда о счастливом детском доме."},
-  {id: 40748, title:"Jujutsu Kaisen", genres:["Экшен","Мистика"], poster:"https://shikimori.io/system/animes/original/40748.jpg", rating:8.77, episodes:24, description:"Магическая битва против проклятий!"},
-  {id: 17074, title:"Monogatari Series: Second Season", genres:["Комедия","Мистика"], poster:"https://shikimori.io/system/animes/original/17074.jpg", rating:8.65, episodes:26, description:"Фантастика и сверхъестественные истории."},
-  {id: 16498, title:"Shingeki no Kyojin", genres:["Экшен","Драма"], poster:"https://shikimori.io/system/animes/original/16498.jpg", rating:8.52, episodes:25, description:"Человечество против Титанов."},
-  {id: 2904, title:"Code Geass", genres:["Экшен","Стратегия"], poster:"https://shikimori.io/system/animes/original/2904.jpg", rating:8.78, episodes:25, description:"Лелуш и революция разума."},
-  {id: 32935, title:"Grimgar", genres:["Исекай","Фэнтези"], poster:"https://shikimori.io/system/animes/original/32935.jpg", rating:7.89, episodes:12, description:"Выживание в неожиданно суровом исекае."},
-  {id: 19815, title:"No Game No Life", genres:["Игры","Комедия"], poster:"https://shikimori.io/system/animes/original/19815.jpg", rating:8.41, episodes:12, description:"Гении в мире, где всё — игра."},
-  {id: 32281, title:"Kimi no Na wa.", genres:["Драма","Романтика"], poster:"https://shikimori.io/system/animes/original/32281.jpg", rating:8.91, episodes:1, description:"Меняющиеся телами парень и девушка."},
-  {id: 11757, title:"Sword Art Online", genres:["Игры","Фэнтези"], poster:"https://shikimori.io/system/animes/original/11757.jpg", rating:7.68, episodes:25, description:"Игра на выживание в виртуальной реальности."},
-  {id: 1535, title:"Death Note", genres:["Детектив","Психология"], poster:"https://shikimori.io/system/animes/original/1535.jpg", rating:8.80, episodes:37, description:"Лайт, L и смертельная игра разума."},
-  {id: 274, title:"Azumanga Daioh", genres:["Комедия","Сёдзё"], poster:"https://shikimori.io/system/animes/original/274.jpg", rating:8.10, episodes:26, description:"Странные школьницы и юмор в чистом виде."},
-  {id: 37032, title:"Violet Evergarden", genres:["Драма","Повседневность"], poster:"https://shikimori.io/system/animes/original/37032.jpg", rating:8.65, episodes:13, description:"Поиски себя и смысл писем."},
-  {id: 13601, title:"Psycho-Pass", genres:["Экшен","Фантастика"], poster:"https://shikimori.io/system/animes/original/13601.jpg", rating:8.38, episodes:22, description:"Тёмный киберпанк о преступлениях будущего."},
-  {id: 32093, title:"Re:Zero", genres:["Исекай","Драма"], poster:"https://shikimori.io/system/animes/original/32093.jpg", rating:8.22, episodes:25, description:"Смерти и возрождения Субару в фэнтезийном мире."},
-  {id: 19, title:"Monster", genres:["Детектив","Драма"], poster:"https://shikimori.io/system/animes/original/19.jpg", rating:8.7, episodes:74, description:"Доктор против идеального зла."},
-  {id: 20507, title:"Noragami", genres:["Мистика","Экшен"], poster:"https://shikimori.io/system/animes/original/20507.jpg", rating:8.14, episodes:12, description:"Бог-неудачник и его верный друг-яоёри."},
-  {id: 28851, title:"Yuru Camp△", genres:["Повседневность"], poster:"https://shikimori.io/system/animes/original/28851.jpg", rating:8.34, episodes:12, description:"Уютное аниме о походах и дружбе у костра."}
+  {title:"Клинок, рассекающий демонов", eng:"Kimetsu no Yaiba", genres:["Экшен","Демоны"], poster:"https://shikimori.one/system/animes/original/38000.jpg", rating:8.59, description:"История мщения мальчика, потерявшего семью из-за демонов."},
+  {title:"Атака титанов", eng:"Shingeki no Kyojin", genres:["Экшен","Драма"], poster:"https://shikimori.one/system/animes/original/16498.jpg", rating:8.52, description:"Человечество vs титаны в стенах."},
+  {title:"Магическая битва", eng:"Jujutsu Kaisen", genres:["Экшен","Мистика"], poster:"https://shikimori.one/system/animes/original/40748.jpg", rating:8.77, description:"Студенты-экзорцисты и проклятия."},
+  {title:"Моб Психо 100", eng:"Mob Psycho 100", genres:["Экшен","Комедия"], poster:"https://shikimori.one/system/animes/original/32182.jpg", rating:8.57, description:"Школьник-экстрасенс, который не хочет выделяться."},
+  {title:"Ванпанчмен", eng:"One Punch Man", genres:["Экшен","Комедия"], poster:"https://shikimori.one/system/animes/original/30276.jpg", rating:8.58, description:"Сайтама и герои против монстров."},
+  {title:"Человек-бензопила", eng:"Chainsaw Man", genres:["Экшен","Ужасы"], poster:"https://shikimori.one/system/animes/original/48583.jpg", rating:8.57, description:"Дэнджи, демоны и бензопильная вакханалия."},
+  {title:"Реинкарнация безработного", eng:"Mushoku Tensei", genres:["Исекай","Фэнтези"], poster:"https://shikimori.one/system/animes/original/41461.jpg", rating:8.37, description:"Второй шанс в магическом мире."},
+  {title:"No Game No Life", eng:"No Game No Life", genres:["Игры","Комедия"], poster:"https://shikimori.one/system/animes/original/19815.jpg", rating:8.41, description:"Гений-брат и сестра попадают в игровой мир."},
+  {title:"Эта фарфоровая кукла влюбилась", eng:"Sono Bisque Doll wa Koi wo Suru", genres:["Романтика"], poster:"https://shikimori.one/system/animes/original/48926.jpg", rating:8.18, description:"Косплей, любовь и шитьё костюмов."},
+  {title:"Судзуми", eng:"Suzume no Tojimari", genres:["Драма"], poster:"https://shikimori.one/system/animes/original/50594.jpg", rating:8.30, description:"Магический реализ и дверь в мир катастроф."}
 ];
 
-// =========== Каталог ============
+// === 2. Рендер каталога
 function renderCatalog() {
   const container = document.getElementById('anime-grid');
   container.innerHTML = '';
-  animeList.filter(a => a.rating > 7.0).forEach(anime => {
+  animeList.forEach(anime => {
     const card = document.createElement('div');
     card.className = 'anime-card';
-    card.addEventListener('click', () => showAnime(anime.id));
+    card.addEventListener('click', () => showAnime(anime));
     const poster = document.createElement('img');
     poster.className = 'anime-poster';
     poster.src = anime.poster;
@@ -352,73 +348,155 @@ function renderCatalog() {
     card.appendChild(poster);
     const info = document.createElement('div');
     info.className = 'anime-info';
-    const title = document.createElement('div');
-    title.className = 'anime-title';
-    title.textContent = anime.title;
-    info.appendChild(title);
-    const genres = document.createElement('div');
-    genres.className = 'anime-genres';
-    genres.textContent = anime.genres.join(', ');
-    info.appendChild(genres);
-    const rating = document.createElement('div');
-    rating.className = 'anime-rating';
-    rating.textContent = `★ ${anime.rating}`;
-    info.appendChild(rating);
+    info.innerHTML = `<div class="anime-title">${anime.title}</div>
+      <div class="anime-genres">${anime.genres.join(', ')}</div>
+      <div class="anime-rating">★ ${anime.rating}</div>`;
     card.appendChild(info);
     container.appendChild(card);
   });
 }
 renderCatalog();
 
-// =========== Экран тайтла ===========
-let currentAnime = null, currentSeria = 1;
+// === 3. Обработка экрана тайтла и интеграции с AniLibria
+let player = null;
+let currentVideoList = [];
+let currentAnimeTitle = '';
+let currentEpisode = 1;
 
-function showAnime(id) {
-  currentAnime = animeList.find(a => a.id === id);
-  currentSeria = 1;
-  document.getElementById('animepage-poster').src = currentAnime.poster;
-  document.getElementById('animepage-title').textContent = currentAnime.title;
-  document.getElementById('animepage-genres').textContent = currentAnime.genres.join(', ');
-  document.getElementById('animepage-rating').textContent = `★ ${currentAnime.rating}`;
-  document.getElementById('animepage-desc').textContent = currentAnime.description;
+// Преобразование "русского" названия к поисковому запросу AniLibria
+function toSearchQuery(anime) {
+  // Поискать по транслиту/английскому — тогда больше попаданий через API
+  return encodeURIComponent(anime.eng || anime.title);
+}
+
+async function showAnime(anime) {
+  // Обновить информацию о тайтле сразу
+  document.getElementById('animepage-poster').src = anime.poster;
+  document.getElementById('animepage-title').textContent = anime.title;
+  document.getElementById('animepage-genres').textContent = anime.genres.join(', ');
+  document.getElementById('animepage-rating').textContent = `★ ${anime.rating}`;
+  document.getElementById('animepage-desc').textContent = anime.description;
   document.getElementById('catalog-screen').style.display = 'none';
   document.getElementById('anime-screen').style.display = 'block';
+  // Поиск через AniLibria API
+  let titleQuery = toSearchQuery(anime);
+  let apiUrl = 'https://api.anilibria.tv/v3/title/search?limit=3&query=' + titleQuery;
+  let found = null, titleData = null;
+  try {
+    const res = await fetch(apiUrl);
+    const data = await res.json();
+    // Берем самое релевантное — сравниваем eng/rus названия
+    for (const t of data.list) {
+      if ((anime.title && t.names.ru && t.names.ru.trim().toLowerCase() === anime.title.trim().toLowerCase()) ||
+          (anime.eng && t.names.en && t.names.en.trim().toLowerCase() === anime.eng.trim().toLowerCase())) {
+        found = t;
+        break;
+      }
+    }
+    if (!found) found = data.list[0]; // Берем первый хоть какой-то
+    if (!found) throw new Error("Нет подходящего тайтла");
+    // Получить свежую полную карточку
+    const res2 = await fetch('https://api.anilibria.tv/v3/title?id=' + found.id);
+    titleData = await res2.json();
+  } catch (e) {
+    showError('Ошибка загрузки из AniLibria: ' + e.message);
+    return;
+  }
+  // Получить список серий и потоков (fhd/hd/sd) из player.list
+  if (!titleData || !titleData.player || !titleData.player.list) {
+    showError('Серии от AniLibria не найдены.');
+    return;
+  }
+  // Сортируем серии
+  const episodeNums = Object.keys(titleData.player.list)
+    .map(x => parseInt(x, 10))
+    .sort((a,b)=>a-b);
+  currentVideoList = episodeNums.map(num=>{
+    const item = titleData.player.list[num];
+    // рекурсивно ищем первый приемлемый поток fhd > hd > sd
+    let src = item.hls.fhd || item.hls.hd || item.hls.sd || item.mp4.fhd || item.mp4.hd || item.mp4.sd;
+    return {num, src};
+  });
+  currentAnimeTitle = anime.title;
+  // Рендер плиток серий
   renderSeriaBar();
-  loadCollaps();
-}
-function goBackToCatalog() {
-  document.getElementById('anime-screen').style.display = 'none';
-  document.getElementById('catalog-screen').style.display = 'block';
+  // В плеер — первую серию
+  playEpisode(episodeNums[0]);
 }
 
-// =========== Серии ===========
+// Ошибка загрузки тайтла с AniLibria
+function showError(msg) {
+  document.getElementById('seria-bar').innerHTML = `<div style="color:#ff5680;font-weight:700;">${msg}</div>`;
+  if (player) player.stop && player.stop();
+}
+
+// === 4. Plyr-плеер, плитка серии и управление ===
+function cleanupPlayer() {
+  if (player && typeof player.destroy==='function') { player.destroy(); }
+}
+
 function renderSeriaBar() {
   const bar = document.getElementById('seria-bar');
   bar.innerHTML = '';
-  for (let i = 1; i <= Math.min(currentAnime.episodes, 100); ++i) {
+  currentVideoList.forEach(ep => {
     const btn = document.createElement('button');
-    btn.className = 'seria-btn' + (i === currentSeria ? ' active' : '');
-    btn.textContent = i;
+    btn.className = 'seria-btn' + ((ep.num === currentEpisode) ? ' active' : '');
+    btn.textContent = ep.num;
     btn.addEventListener('click', () => {
-      if (currentSeria !== i) {
-        currentSeria = i;
-        renderSeriaBar();
-        loadCollaps();
+      if (currentEpisode !== ep.num) {
+        playEpisode(ep.num);
       }
     });
     bar.appendChild(btn);
+  });
+}
+
+function playEpisode(num) {
+  currentEpisode = num;
+  renderSeriaBar();
+  // Чистим старый плеер чтобы Plyr не плодился
+  cleanupPlayer();
+  const vid = document.getElementById('custom-player');
+  vid.innerHTML = '';
+  let src = currentVideoList.find(x=>x.num===num);
+  if (!src || !src.src) {
+    vid.poster = '';
+    showError('Поток для серии не найден.');
+    return;
+  }
+  vid.src = src.src; // HLS/MP4 ссылка!
+  vid.type = 'application/vnd.apple.mpegURL';
+  vid.poster = document.getElementById('animepage-poster').src;
+  vid.load();
+  
+  // Переинициализируем Plyr c кастомным дизайном
+  player = new Plyr(vid, {
+    controls: ['play-large','play','progress','current-time','mute','volume','settings','fullscreen'],
+    i18n: {settings: 'Настройки', play: 'Воспроизвести', pause: 'Пауза', fullscreen: 'На весь экран'},
+    settings: ['quality', 'speed'],
+    quality: { default: 2, options: [0,1,2] },
+    ratio: '16:9',
+    poster: vid.poster,
+    invertTime: false,
+    hideControls: false,
+  });
+  player.once('ready', () => { player.play(); });
+}
+
+// === 5. Кнопка "Пропустить опенинг" ===
+document.getElementById('skip-op-btn').onclick = function() {
+  if (player && typeof player.currentTime === 'number') {
+    player.currentTime = Math.min(player.currentTime + 85, player.duration || player.currentTime+85);
   }
 }
 
-// =========== Collaps-плеер ===========
-function collapsUrl(anime, seria) {
-  // https://collaps.org/embed/{id}?episode={номер}
-  return `https://collaps.org/embed/${anime.id}?episode=${seria}`;
+// === 6. Возврат к каталогу ===
+function goBackToCatalog() {
+  document.getElementById('anime-screen').style.display = 'none';
+  document.getElementById('catalog-screen').style.display = 'block';
+  cleanupPlayer();
 }
-function loadCollaps() {
-  const iframe = document.getElementById('collaps-iframe');
-  iframe.src = collapsUrl(currentAnime, currentSeria);
-}
+
 </script>
 </body>
 </html>
