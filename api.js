@@ -24,10 +24,7 @@ export async function getCatalog({ page = 1, query = "", genre = null } = {}) {
 
   const url = `${API_BASE}/api/animes?${params.join("&")}`;
   const resp = await fetch(url);
-  if (!resp.ok) {
-    console.log('Ошибка запроса к Shikimori API:', resp.status, url);
-    return { items: [], hasMore: false };
-  }
+  if (!resp.ok) return { items: [], hasMore: false };
   const data = await resp.json();
   const items = (Array.isArray(data) ? data : []).map(a => {
     let poster = a.image?.preview
@@ -42,10 +39,7 @@ export async function getCatalog({ page = 1, query = "", genre = null } = {}) {
       score: a.score
     }
   });
-  return {
-    items,
-    hasMore: Array.isArray(data) && data.length === PAGE_SIZE,
-  };
+  return { items, hasMore: Array.isArray(data)&&data.length===PAGE_SIZE };
 }
 export async function getAnime(id) {
   const [animeInfo, externalLinks] = await Promise.all([
