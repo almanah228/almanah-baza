@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Альманах База</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <!-- Логотип приложения -->
+    <img src="assets/logo.png" class="logo" alt="Логотип"/>
+    <h1>Альманах База</h1>
+    <form id="search-form">
+      <input id="search-input" placeholder="Поиск аниме..." />
+    </form>
+  </header>
+  <main>
+    <div id="anime-grid"></div>
+    <div id="catalog-end"></div>
+  </main>
+  <div id="modal-detail" style="display:none"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
