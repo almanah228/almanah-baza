@@ -5,25 +5,27 @@ function slugName(anime) {
 }
 export const providers = [
   {
-    id: 'anilibria',
-    title: 'AniLibria',
-    type: 'RuSite',
-    async getLink(anime) {
-      // ищет через апи по shikimori_id
-      try {
-        const resp = await fetch(`https://api.anilibria.tv/v3/title/search?shikimori_id=${anime.id}`);
-        const data = await resp.json();
-        if (!data || !data.code) return null;
-        return {
-          site: 'AniLibria',
-          url: `https://www.anilibria.tv/release/${data.code}.html`,
-          type: 'RuSite'
-        };
-      } catch {
-        return null;
-      }
+  id: 'anilibria',
+  title: 'AniLibria',
+  type: 'RuSite',
+  async getLink(anime) {
+    try {
+      const resp = await fetch(
+        `https://api.anilibria.tv/v3/title/search?shikimori_id=${anime.id}`
+      );
+      if (!resp.ok) return null;
+      const data = await resp.json();
+      if (!data || !data.code) return null;
+      return {
+        site: 'AniLibria',
+        url: `https://www.anilibria.tv/release/${data.code}.html`,
+        type: 'RuSite'
+      };
+    } catch {
+      return null;
     }
-  },
+  }
+},
   {
     id: 'jutsu',
     title: 'Jut.su',
