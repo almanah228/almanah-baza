@@ -9,6 +9,7 @@ export const providers_ru = [
     getLink(anime) {
       let url = getExternalUrl(anime, 'jut.su');
       if (url) return {site: 'Jut.su', url, type: 'Jut.su'};
+      // fallback — поиск
       return {site:'Jut.su', url:`https://jut.su/search.html?query=${encodeURIComponent(anime.russian || anime.nameOriginal || anime.name)}`, type:'Jut.su'};
     }
   },
@@ -45,7 +46,7 @@ export const providers_ru = [
       return {site: 'AnimeGO', url: `https://animego.org/search/all?q=${encodeURIComponent(anime.russian || anime.nameOriginal || anime.name)}`, type: 'AnimeGO'};
     }
   },
-  // Можешь добавить других по той же схеме!
+  // Допиши другие площадки аналогично!
 ];
 
 export const providers_en = [
@@ -57,6 +58,6 @@ export const providers_en = [
       if (url) return {site: 'RURO', url, type: 'RURO'};
       return {site: 'RURO', url: `https://ruro.me/search?q=${encodeURIComponent(anime.nameOriginal || anime.name)}`, type: 'RURO'};
     }
-  },
-  // Допиши Crunchyroll, Netflix по этой же логике!
+  }
+  // Допиши еще!
 ];
