@@ -69,31 +69,25 @@ async function renderCatalog(clear=false) {
 
 async function showAnime(id) {
   const anime = await getAnime(id);
-  document.body.scrollTop = 0;
-  document.documentElement.scrollTop = 0;
   document.body.innerHTML = `
     <header>
       <img src="assets/logo.png" class="logo" alt="">
       <h1>Альманах База</h1>
-      <button class="back-detail" onclick="window.location.hash=''">← Назад</button>
+      <button class="back-btn" onclick="window.history.back()">← Назад</button>
     </header>
-    <main style="max-width:760px;margin:auto;">
-      <div style="display:flex;gap:24px;align-items:flex-start;">
-        <img src="${anime.poster}" alt="" style="width:220px;height:300px;object-fit:cover;border-radius:15px;">
-        <div style="flex:1;">
-          <h2>${anime.name}</h2>
-          <small style="color:#798fff;opacity:.8;">★ ${anime.score||''}</small>
-          <div class="descr" style="margin:21px 0;">${stripHTML(anime.description)}</div>
-          <div id="links-switch" style="margin:20px 0;"></div>
-        </div>
-      </div>
-    </main>
+    <div id="anime-detail">
+      <img src="${anime.poster}" alt="">
+      <h2>${anime.name}</h2>
+      <div style="margin-bottom:6px;color:#798fff;opacity:.9;">★ ${anime.score||''}</div>
+      <div class="descr">${stripHTML(anime.description)}</div>
+      <div id="links-switch"></div>
+    </div>
   `;
   let currentType = 'RU';
   let providersUsed = providers_ru;
   async function renderLinksSwitcher() {
     let markup = `
-      <div style="display:flex;gap:9px;margin-bottom:12px;align-items:center;">
+      <div style="display:flex;gap:9px;margin-bottom:12px;">
         <button id="ru-btn" class="switch-btn${currentType==='RU'?' act':''}">РУ</button>
         <button id="en-btn" class="switch-btn${currentType==='EN'?' act':''}">EN</button>
       </div>
@@ -101,7 +95,7 @@ async function showAnime(id) {
     for(const prov of providersUsed) {
       let link = prov.getLink(anime);
       if (link instanceof Promise) link = await link;
-      if (link && link.url) markup += `<a href="${link.url}" target="_blank" rel="noopener">${prov.title}</a>`;
+      if (link && link.url) markup += `<a href="${link.url}" target="_blank">${prov.title}</a>`;
     }
     markup += `</div>`;
     document.getElementById('links-switch').innerHTML = markup;
@@ -132,9 +126,7 @@ function router() {
         <div id="anime-grid"></div>
         <div id="catalog-end"></div>
       </main>
-      <div id="modal-detail" style="display:none"></div>
     `;
-    // Переинициализация:
     window.searchForm = document.getElementById('search-form');
     window.searchInput = document.getElementById('search-input');
     window.grid = document.getElementById('anime-grid');
