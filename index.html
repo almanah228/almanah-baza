@@ -3,30 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <title>Альманах База</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="osaka-logo.png">
 </head>
 <body>
-  <div class="layout-bg"></div>
-  <header class="shiki-header">
-    <img src="assets/osaka-logo.png" class="logo-img" alt="logo" />
-    <span class="site-title">Альманах База</span>
-    <form id="search-form" class="shiki-search">
-      <input id="search-input" autocomplete="off" placeholder="Поиск аниме...">
-      <button type="submit" aria-label="Найти">🔍</button>
+  <header>
+    <img src="osaka-logo.png" class="logo" alt="Логотип" />
+    <h1>Альманах База</h1>
+    <form id="search-form">
+      <input id="search-input" placeholder="Поиск аниме..."/>
     </form>
   </header>
-  <main class="main-center">
-    <aside class="genres-side">
-      <h3>Жанры</h3>
-      <div id="genre-panel"></div>
-      <button id="genres-reset" class="genre-chip reset">Сбросить</button>
-    </aside>
-    <section class="center-block">
-      <div id="anime-grid" class="anime-grid"></div>
-      <div id="catalog-end"></div>
-    </section>
+  <aside>
+    <div id="genre-panel"></div>
+    <button id="genres-reset" class="genre-btn reset">Сбросить</button>
+  </aside>
+  <main>
+    <div id="anime-grid"></div>
+    <div id="catalog-end"></div>
   </main>
   <div id="modal-detail" style="display:none"></div>
   <script type="module" src="app.js"></script>
