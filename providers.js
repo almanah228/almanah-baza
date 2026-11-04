@@ -1,8 +1,5 @@
-function slugify(str) {
-  return (str || '')
-    .toLowerCase()
-    .replace(/[ /]+/g, "-")
-    .replace(/[^a-z0-9а-я\-]/g, "");
+function getExternalUrl(anime, site) {
+  return anime.externalLinks?.find(x => x.site === site)?.url || null;
 }
 
 export const providers_ru = [
@@ -10,12 +7,9 @@ export const providers_ru = [
     id: 'jut.su',
     title: 'Jut.su',
     getLink(anime) {
-      if (anime.externalLinks) {
-        const ext = anime.externalLinks.find(x=>x.site==='jut.su');
-        if (ext) return {site:'Jut.su', url:ext.url, type:'Jut.su'};
-      }
-      const slug = slugify(anime.russian || anime.nameOriginal || anime.name);
-      return {site:'Jut.su', url:`https://jut.su/${slug}.html`, type:'Jut.su'};
+      let url = getExternalUrl(anime, 'jut.su');
+      if (url) return {site: 'Jut.su', url, type: 'Jut.su'};
+      return {site:'Jut.su', url:`https://jut.su/search.html?query=${encodeURIComponent(anime.russian || anime.nameOriginal || anime.name)}`, type:'Jut.su'};
     }
   },
   {
@@ -26,10 +20,10 @@ export const providers_ru = [
         const resp = await fetch(`https://api.anilibria.tv/v3/title/search?shikimori_id=${anime.id}`);
         if (resp.ok) {
           const data = await resp.json();
-          if (data && data.code)
+          if (data && data.slug)
             return {
               site: 'AniLibria',
-              url: `https://www.anilibria.tv/release/${data.code}.html`,
+              url: `https://anilibria.tv/release/${data.slug}.html`,
               type: 'AniLibria'
             }
         }
@@ -37,28 +31,32 @@ export const providers_ru = [
       const q = encodeURIComponent(anime.nameOriginal || anime.name);
       return {
         site: 'AniLibria',
-        url: `https://www.anilibria.tv/search?search=${q}`,
+        url: `https://anilibria.tv/search?search=${q}`,
         type: 'AniLibria'
       };
     }
   },
-  // ... (добавь другие провайдеры-аналогично: YummyAnime, AniDub, AnimeGO, Miru, ...)
+  {
+    id: 'animego',
+    title: 'AnimeGO',
+    getLink(anime) {
+      let url = getExternalUrl(anime, 'animego');
+      if (url) return {site: 'AnimeGO', url, type: 'AnimeGO'};
+      return {site: 'AnimeGO', url: `https://animego.org/search/all?q=${encodeURIComponent(anime.russian || anime.nameOriginal || anime.name)}`, type: 'AnimeGO'};
+    }
+  },
+  // Можешь добавить других по той же схеме!
 ];
 
-// ENGLISH
 export const providers_en = [
   {
     id: 'ruro',
     title: 'RURO',
     getLink(anime) {
-      // RURO на английском: либо externalLink c site='ruro', либо поиск
-      if (anime.externalLinks) {
-        const ext = anime.externalLinks.find(x=>x.site==='ruro');
-        if (ext) return {site:'RURO', url:ext.url, type:'RURO'};
-      }
-      const q = encodeURIComponent(anime.nameOriginal || anime.name);
-      return {site:'RURO', url:`https://ruro.me/search?q=${q}`, type:'RURO'};
+      let url = getExternalUrl(anime, 'ruro');
+      if (url) return {site: 'RURO', url, type: 'RURO'};
+      return {site: 'RURO', url: `https://ruro.me/search?q=${encodeURIComponent(anime.nameOriginal || anime.name)}`, type: 'RURO'};
     }
   },
-  // ... (Crunchyroll, Netflix, Funimation, ...)
+  // Допиши Crunchyroll, Netflix по этой же логике!
 ];
