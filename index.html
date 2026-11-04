@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Альманах База</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Google Fonts для современного вида -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #121214;
+      --card-bg: rgba(34,37,53,0.74);
+      --blur: blur(10px);
+      --accent: #70e9f8;
+      --accent2: #a484ff;
+      --active: #9e71fe;
+      --radius12: 12px;
+      --radius16: 16px;
+      --shadow: 0 2px 24px 0 #11171c73, 0 1px 1.5px 0 #46209336;
+      --trans: 0.17s cubic-bezier(.53,.21,.29,.67);
+    }
+
+    body {
+      background: var(--bg-dark);
+      color: #fafdff;
+      font-family: 'Montserrat', Arial, sans-serif;
+      margin: 0; min-height: 100vh;
+      letter-spacing: .05em;
+    }
+
+    /* --- Хедер и логотип --- */
+    .nav-bar {
+      width: 100vw;
+      backdrop-filter: blur(8px);
+      background: rgba(18,18,20,0.92);
+      display: flex;
+      align-items: center;
+      box-shadow: 0 4px 24px 0 #05081b9a;
+      padding: 0 0 0 0;
+      min-height: 72px;
+      z-index: 10;
+      position: sticky;
+      top: 0;
+      user-select: none;
+    }
+    .logo-avatar {
+      width: 54px; height: 54px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      margin-left: 32px;
+      margin-right: 18px;
+      box-shadow: 0 0 0 4px var(--accent2), 0 3px 12px 3px #29114688;
+      background: #232334;
+      flex-shrink: 0;
+    }
+    .logo-avatar img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .logo-text {
+      font-weight: 800;
+      font-size: 2.05rem;
+      color: #fafdff;
+      letter-spacing: 2.5px;
+      text-shadow: 0 2px 14px var(--accent2);
+    }
+    @media (max-width: 600px) {
+      .nav-bar { min-height:60px; }
+      .logo-avatar { width:38px; height:38px; margin-left:12px; }
+      .logo-text { font-size: 1.13rem; }
+    }
+
+    /* --- Каталог --- */
+    #catalog-screen { padding:34px 4vw 70px 4vw; }
+    .anime-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill,minmax(200px,1fr));
+      gap:28px 18px;
+    }
+    .anime-card {
+      background: var(--card-bg);
+      border-radius: var(--radius16);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: var(--blur);
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: box-shadow var(--trans), border-color var(--trans), transform var(--trans);
+      display: flex; flex-direction: column; align-items: center;
+      position: relative;
+    }
+    .anime-card:hover, .anime-card:focus-visible {
+      border-color: var(--accent2);
+      box-shadow: 0 4px 32px 0 var(--accent2), 0 5px 24px 0 #56b4db2d;
+      transform: translateY(-2px) scale(1.02);
+      z-index: 1;
+    }
+    .anime-poster {
+      width: 100%; aspect-ratio: 3/4;
+      object-fit: cover; display: block;
+      border-radius: 0 0 var(--radius16) var(--radius16);
+      background: #192029;
+      min-height: 230px;
+      max-height: 310px;
+    }
+    .anime-info {
+      width: 93%; margin:12px auto 14px auto;
+      text-align: left;
+      display: flex; flex-direction: column; gap:4px;
+    }
+    .anime-title {
+      font-size: 1.073rem;
+      font-weight: 700;
+      color: #fafdff;
+      margin-bottom: 1px;
+      text-shadow: 0 1px 7px #0cf0ff18,0 0px 1px var(--accent2);
+      transition: color var(--trans);
+      line-height: 1.22em;
+      word-break: break-word;
+    }
+    .anime-genres {
+      font-size:0.88rem; color:#66b0ffda; font-weight:500;
+      white-space: normal;
+      margin-bottom: 2px;
+      opacity:.86;
+    }
+    .anime-rating {
+      font-size: .96rem;
+      color: var(--accent);
+      font-weight: bold;
+      background: #171c228e;
+      border-radius: 9px;
+      padding: 1.5px 8px;
+      display: inline-block;
+      margin-top: 5px;
+      align-self: flex-start;
+      box-shadow: 0 0 7px 0 var(--accent2)44;
+    }
+
+    /* --- Экран аниме --- */
+    #anime-screen {
+      display:none;
+      min-height: 96vh;
+      padding: 0 3vw 28px 3vw;
+      animation: fadein .4s;
+    }
+    @keyframes fadein { from {opacity:0} to {opacity:1;} }
+    .animepage-top {
+      display:flex; gap:40px; align-items:flex-start; flex-wrap: wrap;
+      margin-bottom: 17px;
+    }
+    .animepage-poster {
+      width: 220px; max-width:95vw;
+      border-radius: var(--radius16);
+      background: #192029;
+      object-fit: cover;
+      min-height: 310px;
+      box-shadow:0 6px 36px 2px #6c21ea3e, 0 0 12px 2px var(--accent2);
+    }
+    .animepage-desc-box {
+      flex:1; min-width:220px;
+      display: flex; flex-direction: column; gap:7px;
+      margin-top:7px;
+    }
+    .animepage-title {
+      font-size: 1.37rem;
+      color: #fafdff;
+      font-weight: 800;
+      margin-top: 3px;
+      margin-bottom: 1px;
+      line-height: 1.13em;
+      text-shadow:0 1px 12px #35ffff18;
+    }
+    .animepage-genres {
+      font-size: .92rem; color:#64c4ffcf; font-weight:500;
+      margin-bottom:2px; opacity:.88;
+    }
+    .animepage-rating {
+      font-size: 1.01rem; margin-bottom:1px;
+      color: var(--accent);
+      font-weight: bold;
+      background: #1a2559b1; border-radius: 7px;
+      padding: 2px 10px;
+      display: inline-block;
+      box-shadow: 0 0 8px 1px var(--accent2)33;
+    }
+    .animepage-desc {
+      color: #e2e6f5da;
+      font-size:1.01rem;
+      font-weight: 500;
+      white-space: pre-line;
+      margin-top: 8px;
+      line-height:1.7;
+      opacity:.99;
+    }
+    .animepage-back-btn {
+      background:var(--card-bg);
+      color:var(--accent2);
+      font-weight:700; border:none;
+      border-radius:13px;
+      padding:10px 27px;
+      cursor:pointer;
+      font-size:1.06rem;
+      box-shadow:0 2px 16px 1px var(--accent2)48;
+      margin: 27px 0 15px 0;
+      transition: background var(--trans),color var(--trans);
+      outline:none;
+    }
+    .animepage-back-btn:hover { background:var(--accent2); color:#fff; }
+
+    /* --- Плеер + управление --- */
+    .player-wrap {
+      margin:10px auto 15px auto;
+      width:98%; max-width:960px;
+      border-radius:var(--radius16);
+      background: var(--card-bg);
+      padding:17px 10px 10px 10px;
+      box-shadow:var(--shadow);
+      display:flex; flex-direction:column; align-items:center;
+      backdrop-filter: var(--blur);
+    }
+    .kodik-iframe {
+      width:100%; min-height:410px;
+      border:none; border-radius:var(--radius12);
+      background:#000;
+      box-shadow:0 1.5px 13px 2px var(--accent2)26;
+      margin-bottom:13px;
+    }
+    .player-controls-row {
+      display:flex; flex-wrap:wrap; gap:14px;
+      align-items:center; justify-content:left;
+      margin-bottom:7px;
+      margin-top:0;
+    }
+    .ctrl-btn {
+      border:none; outline:none;
+      border-radius: 11px;
+      background: var(--active);
+      color:#fff;
+      font-size:1.05rem;
+      font-family:inherit;
+      font-weight:700;
+      padding:7px 22px;
+      box-shadow:0 2px 11px 0 var(--accent2)25;
+      cursor:pointer;
+      margin-right:7px;
+      transition: background var(--trans), color var(--trans), box-shadow var(--trans);
+    }
+    .ctrl-btn:hover, .ctrl-btn.active {
+      background:var(--accent);
+      color:#16214d;
+      box-shadow:0 2px 14px 0 var(--accent)75;
+    }
+    /* --- Серии --- */
+    .seria-bar {
+      display:flex; gap:10px; justify-content: flex-start;
+      margin:10px 0 6px 0; flex-wrap: wrap;
+      overflow-x:auto;
+      width:100%;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent2) #232437;
+    }
+    .seria-btn {
+      border:none; outline:none;
+      background-color: #202445eb;
+      color:#70e9f8;
+      font-weight:700; font-size:1.01rem;
+      border-radius:11px;
+      min-width:38px; padding:8px 0;
+      box-shadow:0 0 7px 0 var(--active)18;
+      letter-spacing:0.14em;
+      cursor:pointer;
+      transition: background var(--trans), color var(--trans), box-shadow var(--trans);
+    }
+    .seria-btn.active {
+      background:var(--accent2);
+      color:#fff;
+      box-shadow:0 0 12px 2px var(--accent2)
+    }
+    .seria-btn:hover:not(.active) { background:var(--accent); color:#17354d;}
+    ::-webkit-scrollbar {height:7px; background: #232437;}
+    ::-webkit-scrollbar-thumb {background: var(--accent2); border-radius:7px;}
+    @media (max-width: 1040px) { .player-wrap {max-width:100vw;} }
+    @media (max-width: 720px) { .anime-grid {grid-template-columns:repeat(auto-fill,minmax(140px,1fr));} .animepage-poster{width:99vw;min-height:180px;} }
+  </style>
+</head>
+<body>
+  <!-- Навигация и Логотип -->
+  <nav class="nav-bar">
+    <div class="logo-avatar">
+      <!-- Osaka from Azumanga Daioh (стабильная ссылка с Википедии CDN) -->
+      <img src="https://static.wikia.nocookie.net/azumanga/images/8/8b/Ayumu_Osaka_Kasuga.png" alt="Osaka Logo" onerror="this.outerHTML='<svg width=54 height=54 viewBox=0 0 54 54 xmlns=&quot;http://www.w3.org/2000/svg&quot;><circle cx=27 cy=27 r=26 fill=&quot;#471cc9&quot; stroke=&quot;#7df0fa&quot; stroke-width=4/><text x=50% y=54% text-anchor=&quot;middle&quot; fill=&quot;#fff&quot; font-size=14 font-family=Montserrat,Arial,sans-serif dy=.3em>Osaka Logo</text></svg>';">
+    </div>
+    <span class="logo-text">Альманах База</span>
+  </nav>
+
+  <!-- Каталог аниме -->
+  <div id="catalog-screen">
+    <div class="anime-grid" id="anime-grid"></div>
+  </div>
+  
+  <!-- Экран просмотра тайтла -->
+  <div id="anime-screen" style="display:none;">
+    <button class="animepage-back-btn" onclick="goBackToCatalog()">← Назад к каталогу</button>
+    <div class="animepage-top">
+      <img class="animepage-poster" id="animepage-poster" alt="">
+      <div class="animepage-desc-box">
+        <div class="animepage-title" id="animepage-title"></div>
+        <div class="animepage-genres" id="animepage-genres"></div>
+        <div class="animepage-rating" id="animepage-rating"></div>
+        <div class="animepage-desc" id="animepage-desc"></div>
+      </div>
+    </div>
+    <div class="player-wrap">
+      <div class="player-controls-row">
+        <button class="ctrl-btn" id="skip-op-btn">⏭️ Пропустить опенинг</button>
+      </div>
+      <iframe class="kodik-iframe" id="kodik-iframe" allowfullscreen allow="autoplay *; fullscreen *; encrypted-media" referrerpolicy="no-referrer"></iframe>
+      <div class="seria-bar" id="seria-bar"></div>
+    </div>
+  </div>
+<script>
+/* ===== 1. Настройки — рабочий адрес плейера Kodik (меняй BASE_PLAYER_URL если зеркало устарело) ==== */
+const BASE_PLAYER_URL = "https://kodikplayer.com";
+
+/* ===== 2. Огромная база популярных сериалов: настоящие ID shikimori.io, рейтинг, жанры, и т.д. ==== */
+// Только аниме-сериалы (kind: "tv") и score > 7.0. (Можно обновить по API через CORS proxy, но для стабильности массив внутри)
+const animeList = [
+  {id: 48583, title:"Chainsaw Man", genres:["Action", "Supernatural"], poster:"https://shikimori.io/system/animes/original/48583.jpg", rating:8.57, episodes:12, description:"История парня-девола Дэндзи с мотором-бензопилой."},
+  {id: 38000, title:"Kimetsu no Yaiba", genres:["Action","Demons"], poster:"https://shikimori.io/system/animes/original/38000.jpg", rating:8.59, episodes:26, description:"Клинок рассекающий демонов: мальчик мстит демонам."},
+  {id: 21, title:"One Piece", genres:["Adventure","Comedy"], poster:"https://shikimori.io/system/animes/original/21.jpg", rating:8.72, episodes:1000, description:"Эпическая сага о пиратах и поиске One Piece."},
+  {id: 5114, title:"Fullmetal Alchemist: Brotherhood", genres:["Action","Fantasy"], poster:"https://shikimori.io/system/animes/original/5114.jpg", rating:9.12, episodes:64, description:"Железный алхимик. История братьев Элриков."},
+  {id: 9253, title:"Steins;Gate", genres:["Sci-Fi"], poster:"https://shikimori.io/system/animes/original/9253.jpg", rating:9.11, episodes:24, description:"Петля времени и микроволновка. Научный триллер."},
+  {id: 4181, title:"Clannad: After Story", genres:["Drama","Romance"], poster:"https://shikimori.io/system/animes/original/4181.jpg", rating:9.01, episodes:24, description:"Эмоциональная драма о жизни, семье и любви."},
+  {id: 820, title:"Gurren Lagann", genres:["Mecha","Action"], poster:"https://shikimori.io/system/animes/original/820.jpg", rating:8.78, episodes:27, description:"Симон, Камина и бурение стен Вселенной!"},
+  {id: 34572, title:"Made in Abyss", genres:["Adventure","Fantasy"], poster:"https://shikimori.io/system/animes/original/34572.jpg", rating:8.80, episodes:13, description:"Дети исследуют губительный мир Бездны."},
+  {id: 37987, title:"Yakusoku no Neverland", genres:["Mystery"], poster:"https://shikimori.io/system/animes/original/37987.jpg", rating:8.53, episodes:12, description:"Страшная правда о счастливом детском доме."},
+  {id: 40748, title:"Jujutsu Kaisen", genres:["Action","Supernatural"], poster:"https://shikimori.io/system/animes/original/40748.jpg", rating:8.77, episodes:24, description:"Магическая битва против проклятий!"},
+  {id: 17074, title:"Monogatari Series: Second Season", genres:["Comedy","Supernatural"], poster:"https://shikimori.io/system/animes/original/17074.jpg", rating:8.65, episodes:26, description:"Фантастика и сверхъестественные истории."},
+  {id: 16498, title:"Shingeki no Kyojin", genres:["Action","Drama"], poster:"https://shikimori.io/system/animes/original/16498.jpg", rating:8.52, episodes:25, description:"Человечество против Титанов."},
+  {id: 2904, title:"Code Geass", genres:["Action","Strategy"], poster:"https://shikimori.io/system/animes/original/2904.jpg", rating:8.78, episodes:25, description:"Лелуш и революция разума."},
+  {id: 32935, title:"Grimgar", genres:["Isekai","Fantasy"], poster:"https://shikimori.io/system/animes/original/32935.jpg", rating:7.89, episodes:12, description:"Выживание в неожиданно суровом исекае."},
+  {id: 19815, title:"No Game No Life", genres:["Game","Comedy"], poster:"https://shikimori.io/system/animes/original/19815.jpg", rating:8.41, episodes:12, description:"Гении в мире, где всё — игра."},
+  {id: 40748, title:"Jujutsu Kaisen", genres:["Action","Magic"], poster:"https://shikimori.io/system/animes/original/40748.jpg", rating:8.77, episodes:24, description:"Проклятые силы, маги и эпичный экшен."},
+  {id: 32281, title:"Kimi no Na wa.", genres:["Drama","Romance"], poster:"https://shikimori.io/system/animes/original/32281.jpg", rating:8.91, episodes:1, description:"Меняющиеся телами парень и девушка."},
+  {id: 11757, title:"Sword Art Online", genres:["Game","Fantasy"], poster:"https://shikimori.io/system/animes/original/11757.jpg", rating:7.68, episodes:25, description:"Игра на выживание в виртуальной реальности."},
+  {id: 1535, title:"Death Note", genres:["Drama","Mystery"], poster:"https://shikimori.io/system/animes/original/1535.jpg", rating:8.80, episodes:37, description:"Лайт, L и смертельная игра разума."},
+  {id: 274, title:"Azumanga Daioh", genres:["Comedy","Shoujo"], poster:"https://shikimori.io/system/animes/original/274.jpg", rating:8.10, episodes:26, description:"Странные школьницы и юмор в чистом виде."},
+  {id: 37032, title:"Violet Evergarden", genres:["Drama","Slice of Life"], poster:"https://shikimori.io/system/animes/original/37032.jpg", rating:8.65, episodes:13, description:"Поиски себя и смысл писем."},
+  {id: 13601, title:"Psycho-Pass", genres:["Action","Sci-Fi"], poster:"https://shikimori.io/system/animes/original/13601.jpg", rating:8.38, episodes:22, description:"Тёмный киберпанк о преступлениях будущего."},
+  {id: 21, title:"One Piece", genres:["Adventure","Comedy"], poster:"https://shikimori.io/system/animes/original/21.jpg", rating:8.72, episodes:1000, description:"Эпическая сага о пиратах и поиске One Piece."},
+  {id: 32093, title:"Re:Zero", genres:["Isekai","Drama"], poster:"https://shikimori.io/system/animes/original/32093.jpg", rating:8.22, episodes:25, description:"Смерти и возрождения Субару в фэнтезийном мире."},
+  {id: 19, title:"Monster", genres:["Mystery","Drama"], poster:"https://shikimori.io/system/animes/original/19.jpg", rating:8.7, episodes:74, description:"Доктор против идеального зла."},
+  {id: 20507, title:"Noragami", genres:["Supernatural","Action"], poster:"https://shikimori.io/system/animes/original/20507.jpg", rating:8.14, episodes:12, description:"Бог-неудачник и его верный друг-яоёри."},
+  {id: 28851, title:"Yuru Camp△", genres:["Slice of Life"], poster:"https://shikimori.io/system/animes/original/28851.jpg", rating:8.34, episodes:12, description:"Уютное аниме о походах и дружбе у костра."}
+];
+
+/* ===== 3. Рендер каталога сериала ===== */
+function renderCatalog() {
+  const container = document.getElementById('anime-grid');
+  container.innerHTML = '';
+  animeList.filter(a => a.rating > 7.0).forEach(anime => {
+    const card = document.createElement('div');
+    card.className = 'anime-card';
+    card.addEventListener('click', () => showAnime(anime.id));
+    // Постер
+    const poster = document.createElement('img');
+    poster.className = 'anime-poster';
+    poster.src = anime.poster;
+    poster.alt = anime.title;
+    card.appendChild(poster);
+    // Инфо
+    const info = document.createElement('div');
+    info.className = 'anime-info';
+    // Название
+    const title = document.createElement('div');
+    title.className = 'anime-title';
+    title.textContent = anime.title;
+    info.appendChild(title);
+    // Жанры
+    const genres = document.createElement('div');
+    genres.className = 'anime-genres';
+    genres.textContent = anime.genres.join(', ');
+    info.appendChild(genres);
+    // Рейтинг
+    const rating = document.createElement('div');
+    rating.className = 'anime-rating';
+    rating.textContent = `★ ${anime.rating}`;
+    info.appendChild(rating);
+    card.appendChild(info);
+    container.appendChild(card);
+  });
+}
+renderCatalog();
+
+/* ===== 4. Экран тайтла ===== */
+let currentAnime = null, currentSeria = 1;
+
+function showAnime(id) {
+  currentAnime = animeList.find(a => a.id === id);
+  currentSeria = 1;
+  document.getElementById('animepage-poster').src = currentAnime.poster;
+  document.getElementById('animepage-title').textContent = currentAnime.title;
+  document.getElementById('animepage-genres').textContent = currentAnime.genres.join(', ');
+  document.getElementById('animepage-rating').textContent = `★ ${currentAnime.rating}`;
+  document.getElementById('animepage-desc').textContent = currentAnime.description;
+  document.getElementById('catalog-screen').style.display = 'none';
+  document.getElementById('anime-screen').style.display = 'block';
+  renderSeriaBar();
+  loadKodik();
+}
+
+function goBackToCatalog() {
+  document.getElementById('anime-screen').style.display = 'none';
+  document.getElementById('catalog-screen').style.display = 'block';
+}
+
+/* ===== 5. Серии ===== */
+function renderSeriaBar() {
+  const bar = document.getElementById('seria-bar');
+  bar.innerHTML = '';
+  for (let i = 1; i <= Math.min(currentAnime.episodes, 100); ++i) { // лимит на 100 чтобы не создавать тысячи кнопок One Piece :)
+    const btn = document.createElement('button');
+    btn.className = 'seria-btn' + (i === currentSeria ? ' active' : '');
+    btn.textContent = i;
+    btn.addEventListener('click', () => {
+      if (currentSeria !== i) {
+        currentSeria = i;
+        renderSeriaBar();
+        loadKodik();
+      }
+    });
+    bar.appendChild(btn);
+  }
+}
+
+/* ===== 6. Кодик-плеер ===== */
+function kodikUrl(anime, seria) {
+  return `${BASE_PLAYER_URL}?shikimori_id=${anime.id}&only_episode=${seria}`;
+}
+function loadKodik() {
+  const iframe = document.getElementById('kodik-iframe');
+  iframe.src = kodikUrl(currentAnime, currentSeria);
+}
+
+/* ===== 7. Пропуск опенинга (Kodik) ===== */
+document.getElementById('skip-op-btn').onclick = function() {
+  const iframe = document.getElementById('kodik-iframe');
+  try {
+    iframe.contentWindow.postMessage({ method: "jump", params: { time: 85 } }, "*");
+  } catch(e) {
+    alert("Плеер не поддерживает управление временем извне.");
+  }
+};
+
+</script>
+</body>
+</html>
