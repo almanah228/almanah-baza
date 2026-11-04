@@ -8,18 +8,27 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+  <div class="layout-bg"></div>
   <header class="shiki-header">
-    <span class="logo-block">
-      <img src="assets/osaka-logo.png" class="logo-img" alt="logo" />
-      <span class="site-title">Альманах База</span>
-    </span>
+    <img src="assets/osaka-logo.png" class="logo-img" alt="logo" />
+    <span class="site-title">Альманах База</span>
     <form id="search-form" class="shiki-search">
-      <input id="search-input" autocomplete="off" placeholder="Поиск аниме..." />
+      <input id="search-input" autocomplete="off" placeholder="Поиск аниме...">
       <button type="submit" aria-label="Найти">🔍</button>
     </form>
   </header>
-  <div class="genre-panel" id="genre-panel"></div>
-  <main id="main-content"></main>
+  <main class="main-center">
+    <aside class="genres-side">
+      <h3>Жанры</h3>
+      <div id="genre-panel"></div>
+      <button id="genres-reset" class="genre-chip reset">Сбросить</button>
+    </aside>
+    <section class="center-block">
+      <div id="anime-grid" class="anime-grid"></div>
+      <div id="catalog-end"></div>
+    </section>
+  </main>
+  <div id="modal-detail" style="display:none"></div>
   <script type="module" src="app.js"></script>
 </body>
 </html>
