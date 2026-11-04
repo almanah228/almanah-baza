@@ -17,7 +17,7 @@ searchForm.onsubmit = e => {
 function createTile(anime) {
   const div = document.createElement('div'); div.className='anime-tile';
   div.innerHTML = `
-    <img src="${anime.poster}" alt="${anime.name}" onerror="this.src='assets/logo.png'">
+    <img src="${anime.poster}" alt="${anime.name}" onerror="this.src='assets/osaka-logo.png'">
     <div class="tile-title">${anime.name}</div>
     <div class="tile-rating">★ ${anime.score||''}</div>
   `;
