@@ -1,77 +1,45 @@
 body {
-  background: #20212B;
-  color: #f5f5fa;
-  font-family: "Montserrat", Arial, sans-serif;
-  margin: 0;
+  background: #252535; color: #f3f3fa; font-family: "Montserrat", Arial, sans-serif; margin: 0;
 }
 header {
-  background: #23232b;
-  padding: 15px 30px;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  box-shadow: 0 2px 12px #0a0a1449;
+  background: #23232b; padding: 14px 30px; display: flex; align-items: center; gap: 20px; box-shadow: 0 2px 12px #0a0a1449;
 }
-.logo {
-  width: 44px; height: 44px; border-radius: 50%; object-fit: cover;
-}
-h1 {font-size: 1.6em;}
-#search-form {margin-left:auto;}
-#search-input {padding: 6px 15px; border-radius: 8px; border: none; background: #fff2; color: #fafaf8;}
+.logo { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; }
+h1 { font-size: 1.4em; }
+#search-form { margin-left: auto; }
+#search-input { padding: 6px 14px; border-radius: 8px; border: none; background: #fff2; color: #fafaf8;}
 
-aside {
-  background: #23232c;
-  padding: 25px 14px 16px 26px;
-  width: 185px;
-  float: left;
-  height: calc(100vh - 58px);
-  box-sizing: border-box;
-}
-.genre-btn, #genre-panel button {
-  display: block; margin: 0 0 7px 0; border: none; border-radius: 7px;
-  color: #7ca8fa; background: #191e31; padding: 6px 17px; font-size: 1em;
-  cursor: pointer; transition: 0.18s;
-}
-.genre-btn.selected, #genre-panel button.selected { background: #7d8fff; color: #fff; }
-.genre-btn.reset { color: #c44; background: #27262b; margin-top: 18px; }
-
-main {
-  margin-left: 210px; padding: 32px 16px 32px 16px; min-height: 83vh;
-  max-width: 1150px;
-}
-#anime-grid {display: grid;grid-template-columns: repeat(auto-fill,minmax(170px,1fr));gap: 21px;}
+main { max-width: 1150px; margin: 32px auto 0 auto; }
+#anime-grid {display: grid; grid-template-columns: repeat(auto-fill,minmax(160px,1fr));gap: 18px;}
 .anime-tile {
   background: #23232b;
-  border-radius: 11px;
-  box-shadow: 0 4px 15px #00000007;
-  padding: 12px 3px 8px 3px;
+  border-radius: 10px;
+  box-shadow: 0 3px 12px #00000017;
+  padding: 9px 4px 7px 4px;
   cursor: pointer;
-  min-height: 254px; position: relative;
+  min-height: 234px;
   display: flex; flex-direction: column; align-items:center;
   border: 1.2px solid #252246;
-  transition: .16s;
+  transition: .18s;
 }
-.anime-tile:hover { border: 1.7px solid #7d8fff; background: #232357;}
-.anime-tile img {width: 98%;height:180px;object-fit:cover;border-radius:7px;background:#fff;}
-.tile-title {margin:7px 0 7px 0;font-weight:700;font-size:1em;text-align:center;max-height:2em;overflow:hidden;}
-.tile-genre {font-size: .82em; color: #8aa;}
-.tile-rating {color:#6296fa;font-weight:700;}
+.anime-tile:hover { border: 1.7px solid #798fff; background: #232357;}
+.anime-tile img {width: 98%;height:170px;object-fit:cover;border-radius:8px;background:#fff;}
+.tile-title {margin:6px 0 7px 0;font-weight:700;font-size:.98em;text-align:center;max-height:2em;overflow:hidden;}
 /* модалка */
 #modal-detail {
-  position:fixed;inset:0; background:rgba(18,17,30,0.96); z-index:99;display:flex;align-items:center;justify-content:center;
+  position:fixed;inset:0; background:rgba(18,17,30,0.93); z-index:99;display:flex;align-items:center;justify-content:center;
 }
 #modal-detail .anime-detail {
-  background: #f5f4fe; color: #1e2135; border-radius: 18px;
-  width: 490px; max-width: 96vw; min-height: 320px; box-shadow: 0 8px 54px #0a0c209e;
-  padding: 35px 25px 30px 25px; position:relative;
+  background: #fbfbfe; color: #1e2135; border-radius: 16px;
+  width: 420px; max-width: 98vw; min-height: 300px; box-shadow: 0 8px 40px #0a0c201b;
+  padding: 34px 23px 26px 22px; position:relative;
 }
-#modal-detail .anime-detail img {width: 150px; height: 210px; float:left;margin-right:14px;margin-bottom:7px;border-radius:8px;object-fit:cover;}
-#modal-detail .close-detail {position:absolute;top:17px;right:17px;background:none;border:none;font-size:2.1em;color:#929;}
-#modal-detail .genres {color: #6888fa;font-size:.9em;margin:10px 0;}
+#modal-detail .anime-detail img {width: 128px; height: 180px; float:left;margin-right:10px;margin-bottom:6px;border-radius:6px;object-fit:cover;}
+#modal-detail .close-detail {position:absolute;top:11px;right:15px;background:none;border:none;font-size:2em;color:#929;}
 #modal-detail .descr {margin-bottom:13px;}
-#modal-detail .watch-block {margin-top:16px;}
+#modal-detail .watch-list {margin-top: 14px;}
 #modal-detail .watch-list a {
-  color: #fff; background: #7d8fff;
-  border-radius:7px; padding: 5px 13px; text-decoration:none; margin-right:7px; font-size:1em; transition: .14s;
+  color: #fff; background: #798fff;
+  border-radius:7px; padding: 4px 11px; text-decoration:none; margin-right:7px; font-size:.98em; transition: .13s;
 }
 #modal-detail .watch-list a:hover {background:#6296fa;}
