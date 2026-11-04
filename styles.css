@@ -8,38 +8,35 @@ header {
 h1 { font-size: 1.4em; }
 #search-form { margin-left: auto; }
 #search-input { padding: 6px 14px; border-radius: 8px; border: none; background: #fff2; color: #fafaf8;}
-
 main { max-width: 1150px; margin: 32px auto 0 auto; }
 #anime-grid {display: grid; grid-template-columns: repeat(auto-fill,minmax(160px,1fr));gap: 18px;}
 .anime-tile {
-  background: #23232b;
-  border-radius: 10px;
-  box-shadow: 0 3px 12px #00000017;
-  padding: 9px 4px 7px 4px;
-  cursor: pointer;
-  min-height: 234px;
-  display: flex; flex-direction: column; align-items:center;
-  border: 1.2px solid #252246;
-  transition: .18s;
+  background: #23232b; border-radius: 10px; box-shadow: 0 3px 12px #00000017;
+  padding: 9px 4px 7px 4px; cursor: pointer; min-height: 234px;
+  display: flex; flex-direction: column; align-items:center; border: 1.2px solid #252246; transition: .18s;
 }
 .anime-tile:hover { border: 1.7px solid #798fff; background: #232357;}
 .anime-tile img {width: 98%;height:170px;object-fit:cover;border-radius:8px;background:#fff;}
 .tile-title {margin:6px 0 7px 0;font-weight:700;font-size:.98em;text-align:center;max-height:2em;overflow:hidden;}
-/* модалка */
 #modal-detail {
   position:fixed;inset:0; background:rgba(18,17,30,0.93); z-index:99;display:flex;align-items:center;justify-content:center;
 }
 #modal-detail .anime-detail {
-  background: #fbfbfe; color: #1e2135; border-radius: 16px;
-  width: 420px; max-width: 98vw; min-height: 300px; box-shadow: 0 8px 40px #0a0c201b;
-  padding: 34px 23px 26px 22px; position:relative;
+  background: #fbfbfe; color: #1e2135; border-radius: 16px; width: 510px; max-width: 98vw; min-height: 300px; box-shadow: 0 8px 40px #0a0c201b; padding: 34px 23px 26px 22px; position:relative;
 }
-#modal-detail .anime-detail img {width: 128px; height: 180px; float:left;margin-right:10px;margin-bottom:6px;border-radius:6px;object-fit:cover;}
+#modal-detail .anime-detail img {width: 170px; height: 230px; float:left;margin-right:20px;margin-bottom:6px;border-radius:8px;object-fit:cover;}
 #modal-detail .close-detail {position:absolute;top:11px;right:15px;background:none;border:none;font-size:2em;color:#929;}
+#modal-detail .back-detail {position:absolute;top:11px;left:15px;background:none;border:none;font-size:1.3em;color:#6272a4;}
 #modal-detail .descr {margin-bottom:13px;}
 #modal-detail .watch-list {margin-top: 14px;}
-#modal-detail .watch-list a {
-  color: #fff; background: #798fff;
-  border-radius:7px; padding: 4px 11px; text-decoration:none; margin-right:7px; font-size:.98em; transition: .13s;
-}
+#modal-detail .watch-list a {color: #fff; background: #798fff; border-radius:7px; padding: 4px 11px; text-decoration:none; margin-right:7px; font-size:.98em; transition: .13s;}
 #modal-detail .watch-list a:hover {background:#6296fa;}
+.switch-btn { border:none; background:#ece8ff; color:#444; padding:7px 14px; margin-right:6px; border-radius:5px; font-weight:700; cursor:pointer;}
+.switch-btn.act { background:#6e84fa; color:#fff; }
+.genre-btn {
+  border: none; background: #272d46; color: #e4e9ff;
+  margin: 3px 8px 3px 0; border-radius: 7px; padding: 7px 18px; font-size: .97em;
+  cursor: pointer; transition: .15s;
+}
+.genre-btn.selected, .genre-btn:focus { background: #425cbb; color: #fff; font-weight: bold;}
+.genre-box {margin: 14px 0 14px 0;}
