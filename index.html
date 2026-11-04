@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <title>Альманах База</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Google Fonts для современного вида -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap">
   <style>
     :root {
       --bg-dark: #121214;
       --card-bg: rgba(34,37,53,0.74);
-      --blur: blur(10px);
+      --blur: blur(8px);
       --accent: #70e9f8;
       --accent2: #a484ff;
       --active: #9e71fe;
@@ -19,7 +18,6 @@
       --shadow: 0 2px 24px 0 #11171c73, 0 1px 1.5px 0 #46209336;
       --trans: 0.17s cubic-bezier(.53,.21,.29,.67);
     }
-
     body {
       background: var(--bg-dark);
       color: #fafdff;
@@ -27,20 +25,16 @@
       margin: 0; min-height: 100vh;
       letter-spacing: .05em;
     }
-
-    /* --- Хедер и логотип --- */
     .nav-bar {
       width: 100vw;
-      backdrop-filter: blur(8px);
       background: rgba(18,18,20,0.92);
-      display: flex;
-      align-items: center;
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center;
       box-shadow: 0 4px 24px 0 #05081b9a;
-      padding: 0 0 0 0;
+      padding: 0;
       min-height: 72px;
       z-index: 10;
-      position: sticky;
-      top: 0;
+      position: sticky; top: 0;
       user-select: none;
     }
     .logo-avatar {
@@ -58,10 +52,11 @@
       width: 100%; height: 100%;
       object-fit: cover;
       display: block;
+      background: #232334;
     }
     .logo-text {
       font-weight: 800;
-      font-size: 2.05rem;
+      font-size: 2.04rem;
       color: #fafdff;
       letter-spacing: 2.5px;
       text-shadow: 0 2px 14px var(--accent2);
@@ -69,10 +64,8 @@
     @media (max-width: 600px) {
       .nav-bar { min-height:60px; }
       .logo-avatar { width:38px; height:38px; margin-left:12px; }
-      .logo-text { font-size: 1.13rem; }
+      .logo-text { font-size: 1.12rem; }
     }
-
-    /* --- Каталог --- */
     #catalog-screen { padding:34px 4vw 70px 4vw; }
     .anime-grid {
       display: grid;
@@ -138,8 +131,6 @@
       align-self: flex-start;
       box-shadow: 0 0 7px 0 var(--accent2)44;
     }
-
-    /* --- Экран аниме --- */
     #anime-screen {
       display:none;
       min-height: 96vh;
@@ -209,8 +200,6 @@
       outline:none;
     }
     .animepage-back-btn:hover { background:var(--accent2); color:#fff; }
-
-    /* --- Плеер + управление --- */
     .player-wrap {
       margin:10px auto 15px auto;
       width:98%; max-width:960px;
@@ -221,7 +210,7 @@
       display:flex; flex-direction:column; align-items:center;
       backdrop-filter: var(--blur);
     }
-    .kodik-iframe {
+    .collaps-iframe {
       width:100%; min-height:410px;
       border:none; border-radius:var(--radius12);
       background:#000;
@@ -253,7 +242,6 @@
       color:#16214d;
       box-shadow:0 2px 14px 0 var(--accent)75;
     }
-    /* --- Серии --- */
     .seria-bar {
       display:flex; gap:10px; justify-content: flex-start;
       margin:10px 0 6px 0; flex-wrap: wrap;
@@ -287,10 +275,8 @@
   </style>
 </head>
 <body>
-  <!-- Навигация и Логотип -->
   <nav class="nav-bar">
     <div class="logo-avatar">
-      <!-- Osaka from Azumanga Daioh (стабильная ссылка с Википедии CDN) -->
       <img src="https://static.wikia.nocookie.net/azumanga/images/8/8b/Ayumu_Osaka_Kasuga.png" alt="Osaka Logo" onerror="this.outerHTML='<svg width=54 height=54 viewBox=0 0 54 54 xmlns=&quot;http://www.w3.org/2000/svg&quot;><circle cx=27 cy=27 r=26 fill=&quot;#471cc9&quot; stroke=&quot;#7df0fa&quot; stroke-width=4/><text x=50% y=54% text-anchor=&quot;middle&quot; fill=&quot;#fff&quot; font-size=14 font-family=Montserrat,Arial,sans-serif dy=.3em>Osaka Logo</text></svg>';">
     </div>
     <span class="logo-text">Альманах База</span>
@@ -315,49 +301,43 @@
     </div>
     <div class="player-wrap">
       <div class="player-controls-row">
-        <button class="ctrl-btn" id="skip-op-btn">⏭️ Пропустить опенинг</button>
+        <!-- Кнопку можно реализовать позже, Collaps не всех поддерживает skip -->
       </div>
-      <iframe class="kodik-iframe" id="kodik-iframe" allowfullscreen allow="autoplay *; fullscreen *; encrypted-media" referrerpolicy="no-referrer"></iframe>
+      <iframe class="collaps-iframe" id="collaps-iframe" allowfullscreen allow="autoplay *; fullscreen *; encrypted-media" referrerpolicy="no-referrer"></iframe>
       <div class="seria-bar" id="seria-bar"></div>
     </div>
   </div>
 <script>
-/* ===== 1. Настройки — рабочий адрес плейера Kodik (меняй BASE_PLAYER_URL если зеркало устарело) ==== */
-const BASE_PLAYER_URL = "https://kodikplayer.com";
-
-/* ===== 2. Огромная база популярных сериалов: настоящие ID shikimori.io, рейтинг, жанры, и т.д. ==== */
-// Только аниме-сериалы (kind: "tv") и score > 7.0. (Можно обновить по API через CORS proxy, но для стабильности массив внутри)
+// ==================== Актуальная база сериалов
 const animeList = [
-  {id: 48583, title:"Chainsaw Man", genres:["Action", "Supernatural"], poster:"https://shikimori.io/system/animes/original/48583.jpg", rating:8.57, episodes:12, description:"История парня-девола Дэндзи с мотором-бензопилой."},
-  {id: 38000, title:"Kimetsu no Yaiba", genres:["Action","Demons"], poster:"https://shikimori.io/system/animes/original/38000.jpg", rating:8.59, episodes:26, description:"Клинок рассекающий демонов: мальчик мстит демонам."},
-  {id: 21, title:"One Piece", genres:["Adventure","Comedy"], poster:"https://shikimori.io/system/animes/original/21.jpg", rating:8.72, episodes:1000, description:"Эпическая сага о пиратах и поиске One Piece."},
-  {id: 5114, title:"Fullmetal Alchemist: Brotherhood", genres:["Action","Fantasy"], poster:"https://shikimori.io/system/animes/original/5114.jpg", rating:9.12, episodes:64, description:"Железный алхимик. История братьев Элриков."},
-  {id: 9253, title:"Steins;Gate", genres:["Sci-Fi"], poster:"https://shikimori.io/system/animes/original/9253.jpg", rating:9.11, episodes:24, description:"Петля времени и микроволновка. Научный триллер."},
-  {id: 4181, title:"Clannad: After Story", genres:["Drama","Romance"], poster:"https://shikimori.io/system/animes/original/4181.jpg", rating:9.01, episodes:24, description:"Эмоциональная драма о жизни, семье и любви."},
-  {id: 820, title:"Gurren Lagann", genres:["Mecha","Action"], poster:"https://shikimori.io/system/animes/original/820.jpg", rating:8.78, episodes:27, description:"Симон, Камина и бурение стен Вселенной!"},
-  {id: 34572, title:"Made in Abyss", genres:["Adventure","Fantasy"], poster:"https://shikimori.io/system/animes/original/34572.jpg", rating:8.80, episodes:13, description:"Дети исследуют губительный мир Бездны."},
-  {id: 37987, title:"Yakusoku no Neverland", genres:["Mystery"], poster:"https://shikimori.io/system/animes/original/37987.jpg", rating:8.53, episodes:12, description:"Страшная правда о счастливом детском доме."},
-  {id: 40748, title:"Jujutsu Kaisen", genres:["Action","Supernatural"], poster:"https://shikimori.io/system/animes/original/40748.jpg", rating:8.77, episodes:24, description:"Магическая битва против проклятий!"},
-  {id: 17074, title:"Monogatari Series: Second Season", genres:["Comedy","Supernatural"], poster:"https://shikimori.io/system/animes/original/17074.jpg", rating:8.65, episodes:26, description:"Фантастика и сверхъестественные истории."},
-  {id: 16498, title:"Shingeki no Kyojin", genres:["Action","Drama"], poster:"https://shikimori.io/system/animes/original/16498.jpg", rating:8.52, episodes:25, description:"Человечество против Титанов."},
-  {id: 2904, title:"Code Geass", genres:["Action","Strategy"], poster:"https://shikimori.io/system/animes/original/2904.jpg", rating:8.78, episodes:25, description:"Лелуш и революция разума."},
-  {id: 32935, title:"Grimgar", genres:["Isekai","Fantasy"], poster:"https://shikimori.io/system/animes/original/32935.jpg", rating:7.89, episodes:12, description:"Выживание в неожиданно суровом исекае."},
-  {id: 19815, title:"No Game No Life", genres:["Game","Comedy"], poster:"https://shikimori.io/system/animes/original/19815.jpg", rating:8.41, episodes:12, description:"Гении в мире, где всё — игра."},
-  {id: 40748, title:"Jujutsu Kaisen", genres:["Action","Magic"], poster:"https://shikimori.io/system/animes/original/40748.jpg", rating:8.77, episodes:24, description:"Проклятые силы, маги и эпичный экшен."},
-  {id: 32281, title:"Kimi no Na wa.", genres:["Drama","Romance"], poster:"https://shikimori.io/system/animes/original/32281.jpg", rating:8.91, episodes:1, description:"Меняющиеся телами парень и девушка."},
-  {id: 11757, title:"Sword Art Online", genres:["Game","Fantasy"], poster:"https://shikimori.io/system/animes/original/11757.jpg", rating:7.68, episodes:25, description:"Игра на выживание в виртуальной реальности."},
-  {id: 1535, title:"Death Note", genres:["Drama","Mystery"], poster:"https://shikimori.io/system/animes/original/1535.jpg", rating:8.80, episodes:37, description:"Лайт, L и смертельная игра разума."},
-  {id: 274, title:"Azumanga Daioh", genres:["Comedy","Shoujo"], poster:"https://shikimori.io/system/animes/original/274.jpg", rating:8.10, episodes:26, description:"Странные школьницы и юмор в чистом виде."},
-  {id: 37032, title:"Violet Evergarden", genres:["Drama","Slice of Life"], poster:"https://shikimori.io/system/animes/original/37032.jpg", rating:8.65, episodes:13, description:"Поиски себя и смысл писем."},
-  {id: 13601, title:"Psycho-Pass", genres:["Action","Sci-Fi"], poster:"https://shikimori.io/system/animes/original/13601.jpg", rating:8.38, episodes:22, description:"Тёмный киберпанк о преступлениях будущего."},
-  {id: 21, title:"One Piece", genres:["Adventure","Comedy"], poster:"https://shikimori.io/system/animes/original/21.jpg", rating:8.72, episodes:1000, description:"Эпическая сага о пиратах и поиске One Piece."},
-  {id: 32093, title:"Re:Zero", genres:["Isekai","Drama"], poster:"https://shikimori.io/system/animes/original/32093.jpg", rating:8.22, episodes:25, description:"Смерти и возрождения Субару в фэнтезийном мире."},
-  {id: 19, title:"Monster", genres:["Mystery","Drama"], poster:"https://shikimori.io/system/animes/original/19.jpg", rating:8.7, episodes:74, description:"Доктор против идеального зла."},
-  {id: 20507, title:"Noragami", genres:["Supernatural","Action"], poster:"https://shikimori.io/system/animes/original/20507.jpg", rating:8.14, episodes:12, description:"Бог-неудачник и его верный друг-яоёри."},
-  {id: 28851, title:"Yuru Camp△", genres:["Slice of Life"], poster:"https://shikimori.io/system/animes/original/28851.jpg", rating:8.34, episodes:12, description:"Уютное аниме о походах и дружбе у костра."}
+  {id: 48583, title:"Chainsaw Man", genres:["Экшен","Суперспособности"], poster:"https://shikimori.io/system/animes/original/48583.jpg", rating:8.57, episodes:12, description:"История парня-девола Дэндзи с мотором-бензопилой."},
+  {id: 38000, title:"Kimetsu no Yaiba", genres:["Экшен","Демоны"], poster:"https://shikimori.io/system/animes/original/38000.jpg", rating:8.59, episodes:26, description:"Клинок рассекающий демонов: мальчик мстит демонам."},
+  {id: 21, title:"One Piece", genres:["Приключения","Комедия"], poster:"https://shikimori.io/system/animes/original/21.jpg", rating:8.72, episodes:1000, description:"Эпическая сага о пиратах и поиске One Piece."},
+  {id: 5114, title:"Fullmetal Alchemist: Brotherhood", genres:["Экшен","Фэнтези"], poster:"https://shikimori.io/system/animes/original/5114.jpg", rating:9.12, episodes:64, description:"Железный алхимик. История братьев Элриков."},
+  {id: 9253, title:"Steins;Gate", genres:["Фантастика","Детектив"], poster:"https://shikimori.io/system/animes/original/9253.jpg", rating:9.11, episodes:24, description:"Петля времени и микроволновка. Научный триллер."},
+  {id: 4181, title:"Clannad: After Story", genres:["Драма","Романтика"], poster:"https://shikimori.io/system/animes/original/4181.jpg", rating:9.01, episodes:24, description:"Эмоциональная драма о жизни, семье и любви."},
+  {id: 820, title:"Gurren Lagann", genres:["Меха","Экшен"], poster:"https://shikimori.io/system/animes/original/820.jpg", rating:8.78, episodes:27, description:"Симон, Камина и бурение стен Вселенной!"},
+  {id: 34572, title:"Made in Abyss", genres:["Приключения","Фэнтези"], poster:"https://shikimori.io/system/animes/original/34572.jpg", rating:8.80, episodes:13, description:"Дети исследуют губительный мир Бездны."},
+  {id: 37987, title:"Yakusoku no Neverland", genres:["Детектив","Психология"], poster:"https://shikimori.io/system/animes/original/37987.jpg", rating:8.53, episodes:12, description:"Страшная правда о счастливом детском доме."},
+  {id: 40748, title:"Jujutsu Kaisen", genres:["Экшен","Мистика"], poster:"https://shikimori.io/system/animes/original/40748.jpg", rating:8.77, episodes:24, description:"Магическая битва против проклятий!"},
+  {id: 17074, title:"Monogatari Series: Second Season", genres:["Комедия","Мистика"], poster:"https://shikimori.io/system/animes/original/17074.jpg", rating:8.65, episodes:26, description:"Фантастика и сверхъестественные истории."},
+  {id: 16498, title:"Shingeki no Kyojin", genres:["Экшен","Драма"], poster:"https://shikimori.io/system/animes/original/16498.jpg", rating:8.52, episodes:25, description:"Человечество против Титанов."},
+  {id: 2904, title:"Code Geass", genres:["Экшен","Стратегия"], poster:"https://shikimori.io/system/animes/original/2904.jpg", rating:8.78, episodes:25, description:"Лелуш и революция разума."},
+  {id: 32935, title:"Grimgar", genres:["Исекай","Фэнтези"], poster:"https://shikimori.io/system/animes/original/32935.jpg", rating:7.89, episodes:12, description:"Выживание в неожиданно суровом исекае."},
+  {id: 19815, title:"No Game No Life", genres:["Игры","Комедия"], poster:"https://shikimori.io/system/animes/original/19815.jpg", rating:8.41, episodes:12, description:"Гении в мире, где всё — игра."},
+  {id: 32281, title:"Kimi no Na wa.", genres:["Драма","Романтика"], poster:"https://shikimori.io/system/animes/original/32281.jpg", rating:8.91, episodes:1, description:"Меняющиеся телами парень и девушка."},
+  {id: 11757, title:"Sword Art Online", genres:["Игры","Фэнтези"], poster:"https://shikimori.io/system/animes/original/11757.jpg", rating:7.68, episodes:25, description:"Игра на выживание в виртуальной реальности."},
+  {id: 1535, title:"Death Note", genres:["Детектив","Психология"], poster:"https://shikimori.io/system/animes/original/1535.jpg", rating:8.80, episodes:37, description:"Лайт, L и смертельная игра разума."},
+  {id: 274, title:"Azumanga Daioh", genres:["Комедия","Сёдзё"], poster:"https://shikimori.io/system/animes/original/274.jpg", rating:8.10, episodes:26, description:"Странные школьницы и юмор в чистом виде."},
+  {id: 37032, title:"Violet Evergarden", genres:["Драма","Повседневность"], poster:"https://shikimori.io/system/animes/original/37032.jpg", rating:8.65, episodes:13, description:"Поиски себя и смысл писем."},
+  {id: 13601, title:"Psycho-Pass", genres:["Экшен","Фантастика"], poster:"https://shikimori.io/system/animes/original/13601.jpg", rating:8.38, episodes:22, description:"Тёмный киберпанк о преступлениях будущего."},
+  {id: 32093, title:"Re:Zero", genres:["Исекай","Драма"], poster:"https://shikimori.io/system/animes/original/32093.jpg", rating:8.22, episodes:25, description:"Смерти и возрождения Субару в фэнтезийном мире."},
+  {id: 19, title:"Monster", genres:["Детектив","Драма"], poster:"https://shikimori.io/system/animes/original/19.jpg", rating:8.7, episodes:74, description:"Доктор против идеального зла."},
+  {id: 20507, title:"Noragami", genres:["Мистика","Экшен"], poster:"https://shikimori.io/system/animes/original/20507.jpg", rating:8.14, episodes:12, description:"Бог-неудачник и его верный друг-яоёри."},
+  {id: 28851, title:"Yuru Camp△", genres:["Повседневность"], poster:"https://shikimori.io/system/animes/original/28851.jpg", rating:8.34, episodes:12, description:"Уютное аниме о походах и дружбе у костра."}
 ];
 
-/* ===== 3. Рендер каталога сериала ===== */
+// =========== Каталог ============
 function renderCatalog() {
   const container = document.getElementById('anime-grid');
   container.innerHTML = '';
@@ -365,26 +345,21 @@ function renderCatalog() {
     const card = document.createElement('div');
     card.className = 'anime-card';
     card.addEventListener('click', () => showAnime(anime.id));
-    // Постер
     const poster = document.createElement('img');
     poster.className = 'anime-poster';
     poster.src = anime.poster;
     poster.alt = anime.title;
     card.appendChild(poster);
-    // Инфо
     const info = document.createElement('div');
     info.className = 'anime-info';
-    // Название
     const title = document.createElement('div');
     title.className = 'anime-title';
     title.textContent = anime.title;
     info.appendChild(title);
-    // Жанры
     const genres = document.createElement('div');
     genres.className = 'anime-genres';
     genres.textContent = anime.genres.join(', ');
     info.appendChild(genres);
-    // Рейтинг
     const rating = document.createElement('div');
     rating.className = 'anime-rating';
     rating.textContent = `★ ${anime.rating}`;
@@ -395,7 +370,7 @@ function renderCatalog() {
 }
 renderCatalog();
 
-/* ===== 4. Экран тайтла ===== */
+// =========== Экран тайтла ===========
 let currentAnime = null, currentSeria = 1;
 
 function showAnime(id) {
@@ -409,19 +384,18 @@ function showAnime(id) {
   document.getElementById('catalog-screen').style.display = 'none';
   document.getElementById('anime-screen').style.display = 'block';
   renderSeriaBar();
-  loadKodik();
+  loadCollaps();
 }
-
 function goBackToCatalog() {
   document.getElementById('anime-screen').style.display = 'none';
   document.getElementById('catalog-screen').style.display = 'block';
 }
 
-/* ===== 5. Серии ===== */
+// =========== Серии ===========
 function renderSeriaBar() {
   const bar = document.getElementById('seria-bar');
   bar.innerHTML = '';
-  for (let i = 1; i <= Math.min(currentAnime.episodes, 100); ++i) { // лимит на 100 чтобы не создавать тысячи кнопок One Piece :)
+  for (let i = 1; i <= Math.min(currentAnime.episodes, 100); ++i) {
     const btn = document.createElement('button');
     btn.className = 'seria-btn' + (i === currentSeria ? ' active' : '');
     btn.textContent = i;
@@ -429,32 +403,22 @@ function renderSeriaBar() {
       if (currentSeria !== i) {
         currentSeria = i;
         renderSeriaBar();
-        loadKodik();
+        loadCollaps();
       }
     });
     bar.appendChild(btn);
   }
 }
 
-/* ===== 6. Кодик-плеер ===== */
-function kodikUrl(anime, seria) {
-  return `${BASE_PLAYER_URL}?shikimori_id=${anime.id}&only_episode=${seria}`;
+// =========== Collaps-плеер ===========
+function collapsUrl(anime, seria) {
+  // https://collaps.org/embed/{id}?episode={номер}
+  return `https://collaps.org/embed/${anime.id}?episode=${seria}`;
 }
-function loadKodik() {
-  const iframe = document.getElementById('kodik-iframe');
-  iframe.src = kodikUrl(currentAnime, currentSeria);
+function loadCollaps() {
+  const iframe = document.getElementById('collaps-iframe');
+  iframe.src = collapsUrl(currentAnime, currentSeria);
 }
-
-/* ===== 7. Пропуск опенинга (Kodik) ===== */
-document.getElementById('skip-op-btn').onclick = function() {
-  const iframe = document.getElementById('kodik-iframe');
-  try {
-    iframe.contentWindow.postMessage({ method: "jump", params: { time: 85 } }, "*");
-  } catch(e) {
-    alert("Плеер не поддерживает управление временем извне.");
-  }
-};
-
 </script>
 </body>
 </html>
