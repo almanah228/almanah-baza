@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Альманах База</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="shiki-header">
+    <span class="logo-block">
+      <img src="assets/osaka-logo.png" class="logo-img" alt="logo" />
+      <span class="site-title">Альманах База</span>
+    </span>
+    <form id="search-form" class="shiki-search">
+      <input id="search-input" autocomplete="off" placeholder="Поиск аниме..." />
+      <button type="submit" aria-label="Найти">🔍</button>
+    </form>
+  </header>
+  <div class="genre-panel" id="genre-panel"></div>
+  <main id="main-content"></main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
