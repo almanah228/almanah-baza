@@ -1,10 +1,7 @@
 import { getCatalog, getAnime, getGenres } from './api.js';
 import { providers } from './providers.js';
 
-let genresCache = [];
-let selectedGenres = [];
-let currentQuery = "";
-
+let genresCache = [], selectedGenres = [], currentQuery = "";
 const grid = document.getElementById('anime-grid');
 const genrePanel = document.getElementById('genre-panel');
 const searchForm = document.getElementById('search-form');
@@ -18,14 +15,12 @@ async function loadGenres() {
   genrePanel.innerHTML = '';
   genresCache.forEach(g => {
     const btn = document.createElement('button');
-    btn.className = 'genre-chip';
     btn.textContent = g.russian;
-    if (selectedGenres.includes(g.id)) btn.classList.add('selected');
+    btn.className = selectedGenres.includes(g.id) ? 'genre-btn selected' : 'genre-btn';
     btn.onclick = () => {
-      if (selectedGenres.includes(g.id))
-        selectedGenres = selectedGenres.filter(id=>id!==g.id);
-      else
-        selectedGenres.push(g.id);
+      selectedGenres = selectedGenres.includes(g.id)
+        ? selectedGenres.filter(id=>id!==g.id)
+        : selectedGenres.concat([g.id]);
       page=1; all=[]; hasMore=true; renderCatalog(true);
       loadGenres();
     };
@@ -33,8 +28,7 @@ async function loadGenres() {
   });
 }
 document.getElementById('genres-reset').onclick = () => {
-  selectedGenres = [];
-  page=1; all=[]; hasMore=true; renderCatalog(true);
+  selectedGenres = []; page=1; all=[]; hasMore=true; renderCatalog(true);
   loadGenres();
 };
 
@@ -63,7 +57,7 @@ async function renderCatalog(clear=false) {
   });
   if (observer) observer.disconnect();
   if (hasMore) {
-    const marker = document.createElement('div'); marker.style.height='17px';
+    const marker = document.createElement('div'); marker.style.height='15px';
     observer = new IntersectionObserver(entries=>{
       if (entries[0].isIntersecting && !loading) {
         page++; renderCatalog();
@@ -76,7 +70,7 @@ async function renderCatalog(clear=false) {
 function createTile(anime) {
   const div = document.createElement('div'); div.className='anime-tile';
   div.innerHTML = `
-    <img src="${anime.poster}" alt="${anime.name}" onerror="this.src='assets/osaka-logo.png'">
+    <img src="${anime.poster}" alt="${anime.name}" onerror="this.src='osaka-logo.png'">
     <div class="tile-title">${anime.name}</div>
     <div class="tile-rating">★ ${anime.score||''}</div>
     <div class="tile-genre">${anime.genres.join(', ')}</div>
@@ -97,12 +91,11 @@ async function showAnime(id) {
     <div class="rating">★ ${anime.score||''} | ${anime.episodes} эп.</div>
     <div class="genres">${anime.genres.join(', ')}</div>
     <div class="descr">${stripHTML(anime.description)}</div>
-    <div class="watch-block">
-      <b>Где смотреть:</b>
+    <div class="watch-block"><b>Где смотреть:</b>
       <div class="watch-list">
       ${links.length ? links.map(link=>
         `<a href="${link.url}" target="_blank" rel="noopener">${link.site} [${link.type}]</a>`).join('')
-        : '<div style="color:#f74;margin:10px 0;">Нет сайтов для просмотра</div>'}
+        : '<div style="color:#b44;padding:8px 0;">Нет сайтов для просмотра</div>'}
       </div>
     </div>
   </div>`;
