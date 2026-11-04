@@ -5,8 +5,8 @@ const grid = document.getElementById('anime-grid');
 const searchForm = document.getElementById('search-form');
 const searchInput = document.getElementById('search-input');
 const catalogEnd = document.getElementById('catalog-end');
-const modal = document.getElementById('modal-detail');
 const genreContainer = document.getElementById('genre-container');
+
 let page = 1, all = [], loading=false, hasMore=true, observer=null, currentQuery="", selectedGenre=null;
 let genres = [];
 
@@ -69,9 +69,8 @@ async function renderCatalog(clear=false) {
 
 async function showAnime(id) {
   const anime = await getAnime(id);
-  document.body.scrollTop = 0; // наверх
+  document.body.scrollTop = 0;
   document.documentElement.scrollTop = 0;
-  // страница
   document.body.innerHTML = `
     <header>
       <img src="assets/logo.png" class="logo" alt="">
@@ -90,46 +89,31 @@ async function showAnime(id) {
       </div>
     </main>
   `;
-
   let currentType = 'RU';
   let providersUsed = providers_ru;
-
-  function renderLinksSwitcher() {
-    return `
+  async function renderLinksSwitcher() {
+    let markup = `
       <div style="display:flex;gap:9px;margin-bottom:12px;align-items:center;">
         <button id="ru-btn" class="switch-btn${currentType==='RU'?' act':''}">РУ</button>
         <button id="en-btn" class="switch-btn${currentType==='EN'?' act':''}">EN</button>
       </div>
-      <div class="watch-list">
-        ${providersUsed.map(p => {
-          if (typeof p.getLink === "function") {
-            let link = p.getLink(anime);
-            // поддержка асинхронных (например, AniLibria)
-            if (link instanceof Promise) link = '';
-            return link ? `<a href="${link.url}" target="_blank" rel="noopener">${p.title}</a>` : '';
-          }
-        }).join('')}
-      </div>
-    `;
+      <div class="watch-list">`
+    for(const prov of providersUsed) {
+      let link = prov.getLink(anime);
+      if (link instanceof Promise) link = await link;
+      if (link && link.url) markup += `<a href="${link.url}" target="_blank" rel="noopener">${prov.title}</a>`;
+    }
+    markup += `</div>`;
+    document.getElementById('links-switch').innerHTML = markup;
+    document.getElementById('ru-btn').onclick = () => { currentType = 'RU'; providersUsed = providers_ru; renderLinksSwitcher(); }
+    document.getElementById('en-btn').onclick = () => { currentType = 'EN'; providersUsed = providers_en; renderLinksSwitcher(); }
   }
-
-  function setHandlers() {
-    const $switchBlock = document.querySelector('#links-switch');
-    $switchBlock.innerHTML = renderLinksSwitcher();
-    if (document.querySelector('#ru-btn'))
-      document.querySelector('#ru-btn').onclick = () => { currentType = 'RU'; providersUsed = providers_ru; setHandlers(); }
-    if (document.querySelector('#en-btn'))
-      document.querySelector('#en-btn').onclick = () => { currentType = 'EN'; providersUsed = providers_en; setHandlers(); }
-  }
-  setHandlers();
+  renderLinksSwitcher();
 }
-
 function stripHTML(html) {
   const div = document.createElement('div'); div.innerHTML = html;
   return div.textContent || div.innerText || '';
 }
-
-// SPA-навигация
 function router() {
   if (location.hash.startsWith('#anime-')) {
     const id = +location.hash.replace('#anime-', '');
@@ -150,7 +134,7 @@ function router() {
       </main>
       <div id="modal-detail" style="display:none"></div>
     `;
-    // Переинициализация после изменения innerHTML:
+    // Переинициализация:
     window.searchForm = document.getElementById('search-form');
     window.searchInput = document.getElementById('search-input');
     window.grid = document.getElementById('anime-grid');
@@ -166,6 +150,5 @@ function router() {
     };
   }
 }
-
 window.onhashchange = router;
 window.onload = router;
