@@ -4,500 +4,332 @@
   <meta charset="UTF-8">
   <title>Альманах База</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <!-- Plyr player CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.min.css" />
-  <!-- HLS.js -->
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+  <!-- Минималистичный, современный дизайн: чистая темная тема -->
   <style>
     :root {
-      --bg-dark: #121214;
-      --card-bg: rgba(34,37,53,0.74);
-      --blur: blur(8px);
-      --accent: #70e9f8;
-      --accent2: #a484ff;
-      --active: #9e71fe;
-      --radius12: 12px;
-      --radius16: 16px;
-      --shadow: 0 2px 24px 0 #11171c73, 0 1px 1.5px 0 #46209336;
-      --trans: 0.17s cubic-bezier(.53,.21,.29,.67);
+      --bg: #17181c;
+      --block: #23232b;
+      --tile: #23232b;
+      --tile-hover:#242436;
+      --border: #e6e6e633;
+      --accent: #52b6e6;
+      --accent2: #a19cff;
+      --text: #ececf2;
+      --muted: #c5c7d0;
+      --radius: 17px;
     }
-    body {
-      background: var(--bg-dark);
-      color: #fafdff;
-      font-family: 'Montserrat', Arial, sans-serif;
-      margin: 0; min-height: 100vh;
-      letter-spacing: .05em;
+    html,body {
+      margin:0; padding:0; background:var(--bg);
+      font-family:'Montserrat',Arial,sans-serif; color:var(--text);
+      min-height:100vh;
     }
-    .nav-bar {
-      width: 100vw;
-      background: rgba(18,18,20,0.92);
-      backdrop-filter: blur(8px);
-      display: flex; align-items: center;
-      box-shadow: 0 4px 24px 0 #05081b9a;
-      padding: 0;
-      min-height: 72px;
-      z-index: 10;
-      position: sticky; top: 0;
-      user-select: none;
+    body { min-height:100vh; }
+    .header {
+      display:flex; align-items:center; justify-content:space-between;
+      background:var(--block); min-height:67px; box-shadow:0 2px 14px #191d24a6;
+      padding:0 24px 0 18px; position:sticky;top:0;z-index:2;
     }
-    .logo-avatar {
-      width: 54px; height: 54px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden;
-      margin-left: 32px;
-      margin-right: 18px;
-      box-shadow: 0 0 0 4px var(--accent2), 0 3px 12px 3px #29114688;
-      background: #232334;
-      flex-shrink: 0;
+    .logo-box {
+      display:flex; align-items:center; gap:19px;
     }
-    .logo-avatar img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      display: block;
-      background: #232334;
+    .logo-img {
+      width:46px; height:46px; border-radius:50%; object-fit:cover;
+      background:#222230; box-shadow:0 0 5px 2px var(--accent2)20;
     }
-    .logo-text {
-      font-weight: 800;
-      font-size: 2.04rem;
-      color: #fafdff;
-      letter-spacing: 2.5px;
-      text-shadow: 0 2px 14px var(--accent2);
+    .sitename {
+      font-size:1.29rem; font-weight:700; color:var(--text);letter-spacing:.04em
     }
-    @media (max-width: 600px) {
-      .nav-bar { min-height:60px; }
-      .logo-avatar { width:38px; height:38px; margin-left:12px; }
-      .logo-text { font-size: 1.12rem; }
+    .login-btn {
+      appearance:none;background:var(--accent2);color:var(--text);
+      border:none;padding:9px 22px;border-radius:var(--radius);font-family:inherit;
+      font-size:1.04rem;font-weight:600;cursor:pointer;box-shadow:0 3px 18px -6px var(--accent2)50;
+      transition:.19s; outline:none;
+    }
+    .login-btn:hover { background:var(--accent); }
+    .userpic {
+      margin-left:15px;border-radius:50%; width:38px;height:38px;object-fit:cover;background:#333;
+      border:2.5px solid var(--accent);
+      vertical-align:middle;
     }
     /* Каталог */
-    #catalog-screen { padding:34px 4vw 70px 4vw; }
-    .anime-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill,minmax(200px,1fr));
-      gap:28px 18px;
+    #catalog {max-width:1392px;margin:50px auto 0 auto;padding:0 2vw;}
+    .anime-grid { display:grid; gap:27px 18px; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); }
+    .anime-tile {
+      background:var(--tile); border:1px solid var(--border); border-radius:var(--radius);
+      display:flex;flex-direction:column;box-shadow:0 1.5px 12px 0 #14142612;
+      overflow:hidden;cursor:pointer;transition:.14s;
     }
-    .anime-card {
-      background: var(--card-bg);
-      border-radius: var(--radius16);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      backdrop-filter: var(--blur);
-      border: 2px solid transparent;
-      cursor: pointer;
-      transition: box-shadow var(--trans), border-color var(--trans), transform var(--trans);
-      display: flex; flex-direction: column; align-items: center;
-      position: relative;
+    .anime-tile:hover { border-color:var(--accent2); box-shadow:0 4px 22px 0 var(--accent)10; background:var(--tile-hover); }
+    .anime-poster {width:100%;height:310px;object-fit:cover;background:#28283d;display:block;}
+    .tile-info {padding:15px}
+    .tile-title {font-size:1.02rem;font-weight:700;margin-bottom:8px;}
+    .tile-rating {font-size:.97rem;color:var(--accent);font-weight:600; margin-bottom:0;}
+    .tile-genre {font-size:.88rem;color:var(--muted);opacity:.87;}
+    /* Страница просмотра */
+    #viewer {display:none;}
+    .video-wrap {margin:auto;width:100%;max-width:996px; border-radius:var(--radius);box-shadow:0 3px 36px #191f22a9;}
+    .iframe-player {
+      width:100%; height:480px; border:0; border-radius:var(--radius);background:#191921;
+      box-shadow:0 1px 18px #1b243848;
+      margin-bottom:0;
+      display:block;
     }
-    .anime-card:hover, .anime-card:focus-visible {
-      border-color: var(--accent2);
-      box-shadow: 0 4px 32px 0 var(--accent2), 0 5px 24px 0 #56b4db2d;
-      transform: translateY(-2px) scale(1.02);
-      z-index: 1;
+    .viewer-info {display:flex;gap:30px;flex-wrap:wrap;margin:30px auto 20px auto;max-width:996px;}
+    .viewer-poster {width:220px;max-width:85vw; border-radius:var(--radius);}
+    .viewer-meta {flex:1; min-width:220px;}
+    .viewer-title {font-size:1.37rem;font-weight:800;margin:0 0 12px 0;}
+    .viewer-rating {color:var(--accent);font-weight:600;font-size:1.01rem;}
+    .viewer-desc {margin-top:12px;font-size:1.01rem;color:var(--text);line-height:1.6;}
+    .episode-bar {display:flex;gap:9px;overflow-x:auto;margin-top:11px;}
+    .episode-btn {
+      background:var(--block);color:var(--accent);
+      padding:10px 0;min-width:44px; font-size:1.03rem;font-weight:700;
+      border-radius:12px;border:none;box-shadow:0 0 0 1.5px var(--accent2)16;outline:none;
+      cursor:pointer;transition:.12s;
     }
-    .anime-poster {
-      width: 100%; aspect-ratio: 3/4;
-      object-fit: cover; display: block;
-      border-radius: 0 0 var(--radius16) var(--radius16);
-      background: #192029;
-      min-height: 230px;
-      max-height: 310px;
+    .episode-btn.active, .episode-btn:focus {background:var(--accent2);color:#fff;}
+    .episode-btn:hover {background:var(--accent);color:#fff;}
+    .openingskip-btn {
+      display:block;margin:18px auto 22px auto;background:var(--block);color:var(--accent2);
+      border-radius:12px;font-size:1rem;font-weight:600;padding:9px 28px; border:none;outline:none;cursor:pointer;
+      transition:.17s;
     }
-    .anime-info {
-      width: 93%; margin:12px auto 14px auto;
-      text-align: left;
-      display: flex; flex-direction: column; gap:4px;
+    .openingskip-btn:hover {background:var(--accent2);color:#fff;}
+    .back-btn {
+      margin:25px 0 20px 0;background:var(--block);color:var(--accent2);font-weight:700;
+      border:none;border-radius:12px;font-size:1.02rem;padding:10px 33px;cursor:pointer;transition:.17s;
     }
-    .anime-title {
-      font-size: 1.073rem;
-      font-weight: 700;
-      color: #fafdff;
-      margin-bottom: 1px;
-      text-shadow: 0 1px 7px #0cf0ff18,0 0px 1px var(--accent2);
-      transition: color var(--trans);
-      line-height: 1.22em;
-      word-break: break-word;
+    .back-btn:hover {background:var(--accent2);color:#fff;}
+    @media (max-width: 960px) {
+      .video-wrap,.viewer-info {max-width:99vw;}
+      .viewer-poster {width:150px;}
+      .iframe-player {height:230px;}
     }
-    .anime-genres {
-      font-size:0.88rem; color:#66b0ffda; font-weight:500;
-      white-space: normal;
-      margin-bottom: 2px;
-      opacity:.86;
+    @media (max-width: 630px) {
+      html,body {font-size:.98rem;}
+      .video-wrap,.viewer-info {max-width:99vw;}
+      .viewer-poster {width:90vw;}
+      .iframe-player {height:175px;}
+      .anime-poster{height:180px;}
+      #catalog{margin-top:20px;}
     }
-    .anime-rating {
-      font-size: .96rem;
-      color: var(--accent);
-      font-weight: bold;
-      background: #171c228e;
-      border-radius: 9px;
-      padding: 1.5px 8px;
-      display: inline-block;
-      margin-top: 5px;
-      align-self: flex-start;
-      box-shadow: 0 0 7px 0 var(--accent2)44;
-    }
-    #anime-screen {
-      display:none;
-      min-height: 96vh;
-      padding: 0 3vw 28px 3vw;
-      animation: fadein .4s;
-    }
-    @keyframes fadein { from {opacity:0} to {opacity:1;} }
-    .animepage-top {
-      display:flex; gap:40px; align-items:flex-start; flex-wrap: wrap;
-      margin-bottom: 17px;
-    }
-    .animepage-poster {
-      width: 220px; max-width:95vw;
-      border-radius: var(--radius16);
-      background: #192029;
-      object-fit: cover;
-      min-height: 310px;
-      box-shadow:0 6px 36px 2px #6c21ea3e, 0 0 12px 2px var(--accent2);
-    }
-    .animepage-desc-box {
-      flex:1; min-width:220px;
-      display: flex; flex-direction: column; gap:7px;
-      margin-top:7px;
-    }
-    .animepage-title {
-      font-size: 1.37rem;
-      color: #fafdff;
-      font-weight: 800;
-      margin-top: 3px;
-      margin-bottom: 1px;
-      line-height: 1.13em;
-      text-shadow:0 1px 12px #35ffff18;
-    }
-    .animepage-genres {
-      font-size: .92rem; color:#64c4ffcf; font-weight:500;
-      margin-bottom:2px; opacity:.88;
-    }
-    .animepage-rating {
-      font-size: 1.01rem; margin-bottom:1px;
-      color: var(--accent);
-      font-weight: bold;
-      background: #1a2559b1; border-radius: 7px;
-      padding: 2px 10px;
-      display: inline-block;
-      box-shadow: 0 0 8px 1px var(--accent2)33;
-    }
-    .animepage-desc {
-      color: #e2e6f5da;
-      font-size:1.01rem;
-      font-weight: 500;
-      white-space: pre-line;
-      margin-top: 8px;
-      line-height:1.7;
-      opacity:.99;
-    }
-    .animepage-back-btn {
-      background:var(--card-bg);
-      color:var(--accent2);
-      font-weight:700; border:none;
-      border-radius:13px;
-      padding:10px 27px;
-      cursor:pointer;
-      font-size:1.06rem;
-      box-shadow:0 2px 16px 1px var(--accent2)48;
-      margin: 27px 0 15px 0;
-      transition: background var(--trans),color var(--trans);
-      outline:none;
-    }
-    .animepage-back-btn:hover { background:var(--accent2); color:#fff; }
-    .player-wrap {
-      margin:10px auto 15px auto;
-      width:98%; max-width:960px;
-      border-radius:var(--radius16);
-      background: var(--card-bg);
-      padding:17px 10px 10px 10px;
-      box-shadow:var(--shadow);
-      display:flex; flex-direction:column; align-items:center;
-      backdrop-filter: var(--blur);
-    }
-    .plyr__poster {
-      background: #232334 !important;
-    }
-    .player-controls-row {
-      display:flex; flex-wrap:wrap; gap:14px;
-      align-items:center; justify-content:left;
-      margin-bottom:7px;
-      margin-top:0;
-    }
-    .ctrl-btn {
-      border:none; outline:none;
-      border-radius: 11px;
-      background: var(--active);
-      color:#fff;
-      font-size:1.05rem;
-      font-family:inherit;
-      font-weight:700;
-      padding:7px 22px;
-      box-shadow:0 2px 11px 0 var(--accent2)25;
-      cursor:pointer;
-      margin-right:7px;
-      transition: background var(--trans), color var(--trans), box-shadow var(--trans);
-    }
-    .ctrl-btn:hover, .ctrl-btn.active {
-      background:var(--accent);
-      color:#16214d;
-      box-shadow:0 2px 14px 0 var(--accent)75;
-    }
-    .seria-bar {
-      display:flex; gap:10px; justify-content: flex-start;
-      margin:10px 0 6px 0; flex-wrap: wrap;
-      overflow-x:auto;
-      width:100%;
-      scrollbar-width: thin;
-      scrollbar-color: var(--accent2) #232437;
-    }
-    .seria-btn {
-      border:none; outline:none;
-      background-color: #202445eb;
-      color:#70e9f8;
-      font-weight:700; font-size:1.01rem;
-      border-radius:11px;
-      min-width:38px; padding:8px 0;
-      box-shadow:0 0 7px 0 var(--active)18;
-      letter-spacing:0.14em;
-      cursor:pointer;
-      transition: background var(--trans), color var(--trans), box-shadow var(--trans);
-    }
-    .seria-btn.active {
-      background:var(--accent2);
-      color:#fff;
-      box-shadow:0 0 12px 2px var(--accent2)
-    }
-    .seria-btn:hover:not(.active) { background:var(--accent); color:#17354d;}
-    ::-webkit-scrollbar {height:7px; background: #232437;}
-    ::-webkit-scrollbar-thumb {background: var(--accent2); border-radius:7px;}
-    @media (max-width: 1040px) { .player-wrap {max-width:100vw;} }
-    @media (max-width: 720px) { .anime-grid {grid-template-columns:repeat(auto-fill,minmax(140px,1fr));} .animepage-poster{width:99vw;min-height:180px;} }
   </style>
 </head>
 <body>
-  <nav class="nav-bar">
-    <div class="logo-avatar">
-      <img src="https://static.wikia.nocookie.net/azumanga/images/8/8b/Ayumu_Osaka_Kasuga.png"
-           alt="Osaka Logo"
-           onerror="this.outerHTML='<svg width=54 height=54 viewBox=0 0 54 54 xmlns=&quot;http://www.w3.org/2000/svg&quot;><circle cx=27 cy=27 r=26 fill=&quot;#471cc9&quot; stroke=&quot;#7df0fa&quot; stroke-width=4/><text x=50% y=54% text-anchor=&quot;middle&quot; fill=&quot;#fff&quot; font-size=14 font-family=Montserrat,Arial,sans-serif dy=.3em>Osaka Logo</text></svg>';"/>
-    </div>
-    <span class="logo-text">Альманах База</span>
-  </nav>
-
-  <!-- Каталог аниме -->
-  <div id="catalog-screen">
-    <div class="anime-grid" id="anime-grid"></div>
+  <!-- ===== Минималистичная шапка ===== -->
+  <div class="header">
+    <span class="logo-box">
+      <img src="https://static.wikia.nocookie.net/azumanga/images/8/8b/Ayumu_Osaka_Kasuga.png" class="logo-img" alt="Osaka Logo" />
+      <span class="sitename">Альманах База</span>
+    </span>
+    <span id="auth-area">
+      <button class="login-btn" id="login-btn">Войти через Shikimori</button>
+    </span>
   </div>
   
-  <!-- Экран просмотра тайтла -->
-  <div id="anime-screen" style="display:none;">
-    <button class="animepage-back-btn" onclick="goBackToCatalog()">← Назад к каталогу</button>
-    <div class="animepage-top">
-      <img class="animepage-poster" id="animepage-poster" alt="">
-      <div class="animepage-desc-box">
-        <div class="animepage-title" id="animepage-title"></div>
-        <div class="animepage-genres" id="animepage-genres"></div>
-        <div class="animepage-rating" id="animepage-rating"></div>
-        <div class="animepage-desc" id="animepage-desc"></div>
-      </div>
+  <!-- ========== Каталог аниме ========== -->
+  <div id="catalog">
+    <div style="margin-bottom:33px;font-size:1.12em;color:var(--muted)">Каталог</div>
+    <div class="anime-grid" id="animeGrid"></div>
+    <div id="catalog-loader" style="display:none;text-align:center;margin:28px 0;color:var(--muted)">Загружаю...</div>
+  </div>
+  
+  <!-- ========== Страница просмотра тайтла ========== -->
+  <div id="viewer">
+    <button class="back-btn" onclick="goBackToCatalog()">← Назад к каталогу</button>
+    <div class="video-wrap">
+      <iframe class="iframe-player" id="voidboost-frame" allowfullscreen></iframe>
     </div>
-    <div class="player-wrap">
-      <div class="player-controls-row">
-        <button class="ctrl-btn" id="skip-op-btn">⏭️ Пропустить опенинг</button>
+    <button class="openingskip-btn" id="skip-opening" style="margin-bottom:18px">⏭️ Пропустить опенинг (+85 сек)</button>
+    <div class="episode-bar" id="episodeBar"></div>
+    <div class="viewer-info">
+      <img class="viewer-poster" id="viewerPoster" alt />
+      <div class="viewer-meta">
+        <div class="viewer-title" id="viewerTitle"></div>
+        <div class="viewer-rating" id="viewerRating"></div>
+        <div class="viewer-desc" id="viewerDesc"></div>
       </div>
-      <video id="custom-player" controls playsinline
-        poster=""
-        tabindex="0"
-        style="width:100%;max-width:960px;border-radius:16px;background:#232334;"></video>
-      <div class="seria-bar" id="seria-bar"></div>
-      <div id="anilibria-attribution" style="color:#666;font-size:.88em;text-align:right;width:100%;opacity:.77;margin-top:8px;">Потоки: <a href="https://anilibria.tv" target="_blank" style="color:#70e9f8;text-decoration:none;">AniLibria.TV</a></div>
     </div>
   </div>
-
-  <!-- Plyr JS CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.polyfilled.min.js"></script>
 <script>
-// ==== 1. База аниме для поиска в AniLibria. Корректные русские и английские названия! ====
-const animeList = [
-  {title:"Клинок, рассекающий демонов", eng:"kimetsu no yaiba", poster:"https://shikimori.one/system/animes/original/38000.jpg", rating:8.59, genres:["Экшен","Демоны"], description:"История мщения мальчика, потерявшего семью из-за демонов."},
-  {title:"Атака титанов", eng:"shingeki no kyojin", poster:"https://shikimori.one/system/animes/original/16498.jpg", rating:8.52, genres:["Экшен","Драма"], description:"Человечество vs титаны в стенах."},
-  {title:"Магическая битва", eng:"jujutsu kaisen", poster:"https://shikimori.one/system/animes/original/40748.jpg", rating:8.77, genres:["Экшен","Мистика"], description:"Студенты-экзорцисты и проклятия."},
-  {title:"Моб Психо 100", eng:"mob psycho 100", poster:"https://shikimori.one/system/animes/original/32182.jpg", rating:8.57, genres:["Экшен","Комедия"], description:"Школьник-экстрасенс, который не хочет выделяться."},
-  {title:"Ванпанчмен", eng:"one punch man", poster:"https://shikimori.one/system/animes/original/30276.jpg", rating:8.58, genres:["Экшен","Комедия"], description:"Сайтама и герои против монстров."},
-  {title:"Человек-бензопила", eng:"chainsaw man", poster:"https://shikimori.one/system/animes/original/48583.jpg", rating:8.57, genres:["Экшен","Ужасы"], description:"Дэнджи, демоны и бензопильная вакханалия."},
-  {title:"Реинкарнация безработного", eng:"mushoku tensei", poster:"https://shikimori.one/system/animes/original/41461.jpg", rating:8.37, genres:["Исекай","Фэнтези"], description:"Второй шанс в магическом мире."},
-  {title:"No Game No Life", eng:"no game no life", poster:"https://shikimori.one/system/animes/original/19815.jpg", rating:8.41, genres:["Игры","Комедия"], description:"Гений-брат и сестра попадают в игровой мир."},
-  {title:"Эта фарфоровая кукла влюбилась", eng:"sono bisque doll wa koi wo suru", poster:"https://shikimori.one/system/animes/original/48926.jpg", rating:8.18, genres:["Романтика"], description:"Косплей, любовь и шитьё костюмов."},
-  {title:"Судзуми", eng:"suzume no tojimari", poster:"https://shikimori.one/system/animes/original/50594.jpg", rating:8.30, genres:["Драма"], description:"Магический реализ и дверь в мир катастроф."}
-];
+/* --------------------------
+  Конфиг OAuth2 Shikimori 
+  (замени client_id на свой при деплое! для теста годится любой паблик id)
+-------------------------- */
+const OAUTH_CLIENT_ID = "almanax-base-shiki";
+const OAUTH_REDIRECT_URI = location.origin + location.pathname;
+const OAUTH_SCOPES = "user_rates";
+const SHIKI_BASE = "https://shikimori.io";
+let ACCESS_TOKEN = '';
+let USERNAME = '';
+let completedAnimesSet = new Set();
 
-// === 2. Рендер каталога ===
-function renderCatalog() {
-  const container = document.getElementById('anime-grid');
-  container.innerHTML = '';
-  animeList.forEach(anime => {
-    const card = document.createElement('div');
-    card.className = 'anime-card';
-    card.addEventListener('click', () => showAnime(anime));
-    const poster = document.createElement('img');
-    poster.className = 'anime-poster';
-    poster.src = anime.poster;
-    poster.alt = anime.title;
-    card.appendChild(poster);
-    const info = document.createElement('div');
-    info.className = 'anime-info';
-    info.innerHTML = `<div class="anime-title">${anime.title}</div>
-      <div class="anime-genres">${anime.genres.join(', ')}</div>
-      <div class="anime-rating">★ ${anime.rating}</div>`;
-    card.appendChild(info);
-    container.appendChild(card);
+document.getElementById('login-btn').onclick = function() {
+  const params = [
+    "client_id=" + encodeURIComponent(OAUTH_CLIENT_ID),
+    "redirect_uri=" + encodeURIComponent(OAUTH_REDIRECT_URI),
+    "response_type=token",
+    "scope=" + OAUTH_SCOPES
+  ].join('&');
+  location.href = SHIKI_BASE + "/oauth/authorize?" + params;
+};
+
+// Parse OAuth2 hash on redirect
+function parseOAuth() {
+  if (location.hash.startsWith("#")) {
+    const h = Object.fromEntries(location.hash.slice(1).split('&').map(pair=>pair.split('=')).map(t=>[t[0],decodeURIComponent(t[1]||'')]));
+    if (h.access_token) {
+      ACCESS_TOKEN = h.access_token;
+      // Clean hash
+      history.replaceState({},document.title,location.pathname);
+    }
+  }
+}
+
+// Запрос списка просмотренного
+async function fetchUserCompletedList() {
+  if (!ACCESS_TOKEN) return [];
+  // 1. Вытащить имя пользователя из /api/users/whoami
+  let res = await fetch(SHIKI_BASE + "/api/users/whoami", {
+    headers: {Authorization: "Bearer "+ACCESS_TOKEN}
+  });
+  let whoami = await res.json();
+  USERNAME = whoami.nickname;
+  // 2. Теперь апи получения user_rates status=completed
+  let completed = [];
+  let page = 1, perPage = 500, hasMore = true;
+  while (hasMore) {
+    let r = await fetch(SHIKI_BASE+`/api/v2/user_rates?user_id=${whoami.id}&status=completed&page=${page}&limit=${perPage}`, {
+      headers: {Authorization: "Bearer " + ACCESS_TOKEN}
+    });
+    let data = await r.json();
+    completed.push(...data.map(x=>x.anime && x.anime.id));
+    hasMore = data.length === perPage;
+    page++;
+  }
+  completedAnimesSet = new Set(completed.filter(Boolean));
+  // Изменение шапки
+  document.getElementById('auth-area').innerHTML = `<img src="${whoami.image?.x160||'https://shikimori.one/img/avatars/x160/default.jpg'}" class="userpic" title="${USERNAME}"/>`;
+}
+
+// =============== Загрузка каталога с автофильтрацией ===============
+let allAnimes = []; // Сериалов за все страницы
+let ANIME_PER_PAGE = 50, PAGE_LIMIT = 6;
+
+async function fetchAndRenderCatalog() {
+  // Загружаем постранично только сериалы (kind=tv) и только вышедшие (status аниме)
+  // Можно расширить фильтр по желанию
+  document.getElementById('catalog-loader').style.display = 'block';
+  let results = [];
+  for (let page=1; page<=PAGE_LIMIT; page++) {
+    // Можно усложнить фильтр (например, min_score, genre и т.п.)
+    let r = await fetch(SHIKI_BASE+`/api/animes?limit=${ANIME_PER_PAGE}&page=${page}&kind=tv&order=popularity`);
+    let data = await r.json();
+    results.push(...data);
+  }
+  allAnimes = results.filter(anime => anime.status === "released" && anime.episodes > 0);
+  renderCatalogGrid();
+  document.getElementById('catalog-loader').style.display = 'none';
+}
+
+// =============== Рендер каталога ===============
+function renderCatalogGrid() {
+  const grid = document.getElementById('animeGrid');
+  grid.innerHTML = '';
+  let filtered = allAnimes.filter(anime => !completedAnimesSet.has(anime.id));
+  // Краткая ошибка про просмотренное если нужно
+  if (filtered.length === 0 && allAnimes.length > 0)
+    grid.innerHTML = `<div style="color:var(--muted);margin:99px auto;text-align:center;">Поздравляем! Ваш список просмотренного совпадает с топом :)</div>`;
+  filtered.forEach(anime => {
+    const tile = document.createElement('div');
+    tile.className = 'anime-tile';
+    tile.onclick = () => showViewer(anime);
+    tile.innerHTML = `
+      <img class="anime-poster" src="${anime.image?.original||''}" alt="${anime.russian}">
+      <div class="tile-info">
+        <div class="tile-title">${anime.russian}</div>
+        <div class="tile-rating">★ ${anime.score || '&mdash;'}</div>
+        <div class="tile-genre">${(anime.genres||[]).map(g=>g.russian).join(', ')}</div>
+      </div>
+    `;
+    grid.appendChild(tile);
   });
 }
-renderCatalog();
 
-// === 3. Работа с AniLibria API ===
-let player = null;
-let hls = null;
-let currentVideoList = [];
+// =============== Просмотр тайтла ===============
+let currentAnime = null;
 let currentEpisode = 1;
 
-function clearPlayer() {
-  if (player && typeof player.destroy === 'function') {
-    player.destroy();
-    player = null;
-  }
-  if (hls && typeof hls.destroy === 'function') {
-    hls.destroy();
-    hls = null;
-  }
+function showViewer(anime) {
+  currentAnime = anime;
+  currentEpisode = 1;
+  document.getElementById('catalog').style.display = 'none';
+  document.getElementById('viewer').style.display = 'block';
+  // Заполнение карточки
+  document.getElementById('viewerPoster').src = anime.image?.original||'';
+  document.getElementById('viewerTitle').textContent = anime.russian;
+  document.getElementById('viewerRating').textContent = '★ '+(anime.score||'–');
+  document.getElementById('viewerDesc').textContent = anime.description?.replace(/<br\s*\/?>/gi,"\n")||'';
+  // Подключить Voidboost или Collaps плеер. Voidboost.tv лучше работает на GH Pages.
+  loadPlayer(anime, currentEpisode);
+  renderEpisodeBtns(anime);
 }
 
-function toSearchQuery(anime) {
-  return encodeURIComponent(anime.eng || anime.title);
+// Генерирует ссылку на Voidboost.tv
+function voidboostUrl(anime, ep) {
+  // https://voidboost.tv/embed/anime?shikimori_id=ID&episode=XX
+  return `https://voidboost.tv/embed/anime?shikimori_id=${anime.id}&episode=${ep}`;
 }
 
-async function showAnime(anime) {
-  document.getElementById('animepage-poster').src = anime.poster;
-  document.getElementById('animepage-title').textContent = anime.title;
-  document.getElementById('animepage-genres').textContent = anime.genres.join(', ');
-  document.getElementById('animepage-rating').textContent = `★ ${anime.rating}`;
-  document.getElementById('animepage-desc').textContent = anime.description;
-  document.getElementById('catalog-screen').style.display = 'none';
-  document.getElementById('anime-screen').style.display = 'block';
-  // Поиск AniLibria
-  let apiUrl = 'https://api.anilibria.tv/v3/title/search?limit=4&query=' + toSearchQuery(anime);
-  let found = null, titleData;
-  try {
-    const res = await fetch(apiUrl);
-    const data = await res.json();
-    // Сквозная проверка eng/ru названий или берем первое подходящее
-    for (const t of data.list) {
-      if ((anime.title && t.names.ru && t.names.ru.trim().toLowerCase() === anime.title.trim().toLowerCase()) ||
-        (anime.eng && t.names.en && t.names.en.trim().toLowerCase() === anime.eng.trim().toLowerCase())) {
-        found = t;
-        break;
-      }
-    }
-    if (!found) found = data.list[0];
-    if (!found) throw new Error("Не найден тайтл в AniLibria");
-    // Получаем полные данные тайтла
-    let res2 = await fetch('https://api.anilibria.tv/v3/title?id=' + found.id);
-    titleData = await res2.json();
-  } catch (e) {
-    showError('Ошибка AniLibria: ' + e.message);
-    return;
-  }
-  // Получаем список серий
-  if (!titleData || !titleData.player || !titleData.player.list) {
-    showError('Серии на AniLibria не найдены.');
-    return;
-  }
-  const epNums = Object.keys(titleData.player.list)
-    .map(x => parseInt(x, 10))
-    .sort((a,b) => a-b);
-  currentVideoList = epNums.map(num => {
-    const item = titleData.player.list[num];
-    let src = item.hls.fhd || item.hls.hd || item.hls.sd || item.mp4.fhd || item.mp4.hd || item.mp4.sd;
-    return {num, src};
-  });
-  // Рендер плиток серий
-  renderSeriaBar();
-  playEpisode(epNums[0]);
+function loadPlayer(anime, episode) {
+  const frame = document.getElementById('voidboost-frame');
+  frame.src = voidboostUrl(anime, episode);
 }
 
-function showError(msg) {
-  document.getElementById('seria-bar').innerHTML = `<div style="color:#ff5680;font-weight:700;">${msg}</div>`;
-  clearPlayer();
-}
-
-// === 4. Серии, Plyr + HLS.js ===
-function renderSeriaBar() {
-  const bar = document.getElementById('seria-bar');
+// Отрисовать плитки серий
+function renderEpisodeBtns(anime) {
+  const bar = document.getElementById('episodeBar');
   bar.innerHTML = '';
-  currentVideoList.forEach(ep => {
+  for (let i=1; i<=anime.episodes; i++) {
     const btn = document.createElement('button');
-    btn.className = 'seria-btn' + ((ep.num === currentEpisode) ? ' active' : '');
-    btn.textContent = ep.num;
-    btn.addEventListener('click', () => {
-      if (currentEpisode !== ep.num) {
-        playEpisode(ep.num);
-      }
-    });
+    btn.className = 'episode-btn' + (i===currentEpisode?' active':'');
+    btn.textContent = i;
+    btn.onclick = () => {
+      currentEpisode = i;
+      loadPlayer(anime, i);
+      renderEpisodeBtns(anime);
+    }
     bar.appendChild(btn);
-  });
-}
-
-function playEpisode(num) {
-  currentEpisode = num;
-  renderSeriaBar();
-  clearPlayer();
-
-  const vid = document.getElementById('custom-player');
-  vid.innerHTML = '';
-  let srcObj = currentVideoList.find(x => x.num === num);
-  if (!srcObj || !srcObj.src) {
-    showError('Видео для этой серии не найдено.');
-    return;
-  }
-  let src = srcObj.src;
-  // Интеграция HLS.js
-  if (Hls.isSupported()) {
-    hls = new Hls();
-    hls.loadSource(src);
-    hls.attachMedia(vid);
-  } else if (vid.canPlayType('application/vnd.apple.mpegurl')) {
-    vid.src = src;
-  } else {
-    vid.src = ''; // несовместимость
-    showError('Ваш браузер не поддерживает HLS');
-    return;
-  }
-  // Картинка постера — можно выставить при загрузке
-  vid.poster = document.getElementById('animepage-poster').src;
-  // Внутри Plyr
-  player = new Plyr(vid, {
-    controls: ['play-large','play','progress','current-time','mute','volume','settings','fullscreen'],
-    i18n: {settings: 'Настройки', play: 'Воспроизвести', pause: 'Пауза', fullscreen: 'На весь экран'},
-    settings: ['quality', 'speed'],
-    ratio: '16:9'
-  });
-  player.on('ready', () => player.play());
-}
-
-// === 5. Пропуск опенинга ===
-document.getElementById('skip-op-btn').onclick = function() {
-  if (player && typeof player.currentTime === 'number') {
-    player.currentTime = Math.min(player.currentTime + 85, player.duration || player.currentTime+85);
   }
 }
 
-// === 6. Вернуться в каталог ===
+// Пропуск опенинга (работает если Voidboost поддержит postMessage в будущем)
+document.getElementById('skip-opening').onclick = function() {
+  const frame = document.getElementById('voidboost-frame');
+  try {
+    frame.contentWindow.postMessage({ type: "seek", seconds: 85 }, "*");
+  } catch(e) { /*fallback: ничего*/ }
+};
+
+// Назад к каталогу
 function goBackToCatalog() {
-  document.getElementById('anime-screen').style.display = 'none';
-  document.getElementById('catalog-screen').style.display = 'block';
-  clearPlayer();
+  document.getElementById('viewer').style.display = 'none';
+  document.getElementById('catalog').style.display = 'block';
+  document.getElementById('voidboost-frame').src = "";
 }
+
+// ================= Автоинициализация ===================
+// После авторизации или просто при загрузке
+async function mainFlow() {
+  parseOAuth();
+  if (ACCESS_TOKEN) {
+    await fetchUserCompletedList();
+  }
+  await fetchAndRenderCatalog();
+}
+mainFlow();
+
 </script>
 </body>
 </html>
