@@ -1,10 +1,22 @@
 const API_BASE = "https://shikimori.io";
 const PAGE_SIZE = 40;
-
-// Картинка-заглушка (любой твой файл в папке assets)
 const DEFAULT_IMAGE = "assets/logo.png";
 
-export async function getCatalog({ page = 1, query = "" } = {}) {
+// Получение жанров
+export async function getGenres() {
+  const r = await fetch('https://shikimori.one/api/genres');
+  if (!r.ok) return [];
+  return await r.json();
+}
+
+// Получить внешний ссылки с Shikimori!
+export async function getExternalLinks(id) {
+  const r = await fetch(`${API_BASE}/api/animes/${id}/external_links`);
+  if (!r.ok) return [];
+  return await r.json();
+}
+
+export async function getCatalog({ page = 1, query = "", genre = null } = {}) {
   let params = [
     `limit=${PAGE_SIZE}`,
     `page=${page}`,
@@ -12,6 +24,7 @@ export async function getCatalog({ page = 1, query = "" } = {}) {
     `kind=tv`
   ];
   if (query) params.push('search=' + encodeURIComponent(query.trim()));
+  if (genre) params.push('genre=' + genre);
 
   const url = `${API_BASE}/api/animes?${params.join("&")}`;
   const resp = await fetch(url);
@@ -42,22 +55,24 @@ export async function getCatalog({ page = 1, query = "" } = {}) {
 }
 
 export async function getAnime(id) {
-  const url = `${API_BASE}/api/animes/${id}`;
-  const resp = await fetch(url);
-  if (!resp.ok) throw new Error('Ошибка получения аниме: ' + url);
-  const data = await resp.json();
+  const [animeInfo, externalLinks] = await Promise.all([
+    fetch(`${API_BASE}/api/animes/${id}`).then(r=>r.json()),
+    getExternalLinks(id)
+  ]);
 
-  let poster = data.image?.original
-    ? API_BASE + data.image.original
+  let poster = animeInfo.image?.original
+    ? API_BASE + animeInfo.image.original
     : DEFAULT_IMAGE;
   if (/404|notfound|noimage|plug|blank/i.test(poster)) poster = DEFAULT_IMAGE;
+
   return {
-    id: data.id,
-    name: data.russian || data.name,
-    nameOriginal: data.name,
+    id: animeInfo.id,
+    name: animeInfo.russian || animeInfo.name,
+    nameOriginal: animeInfo.name,
     poster,
-    score: data.score,
-    episodes: data.episodes,
-    description: data.description || "",
+    score: animeInfo.score,
+    episodes: animeInfo.episodes,
+    description: animeInfo.description || "",
+    externalLinks
   };
 }
