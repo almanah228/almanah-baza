@@ -1,4 +1,4 @@
-import { getCatalog, getAnime } from './api.js';
+import { getCatalog, getAnime, getGenres } from './api.js';
 import { providers_ru, providers_en } from './providers.js';
 
 const grid = document.getElementById('anime-grid');
@@ -6,7 +6,23 @@ const searchForm = document.getElementById('search-form');
 const searchInput = document.getElementById('search-input');
 const catalogEnd = document.getElementById('catalog-end');
 const modal = document.getElementById('modal-detail');
-let page = 1, all = [], loading=false, hasMore=true, observer=null, currentQuery="";
+const genreContainer = document.getElementById('genre-container');
+let page = 1, all = [], loading=false, hasMore=true, observer=null, currentQuery="", selectedGenre=null;
+let genres = [];
+
+async function renderGenres() {
+  genres = await getGenres();
+  genreContainer.innerHTML = genres.map(g =>
+    `<button class="genre-btn${selectedGenre===g.id?' selected':''}" data-id="${g.id}">${g.russian}</button>`
+  ).join('');
+  genreContainer.onclick = e => {
+    if (e.target.classList.contains('genre-btn')) {
+      selectedGenre = +e.target.dataset.id;
+      page=1; all=[]; hasMore=true; renderCatalog(true);
+      renderGenres();
+    }
+  };
+}
 
 searchForm.onsubmit = e => {
   e.preventDefault();
@@ -21,7 +37,9 @@ function createTile(anime) {
     <div class="tile-title">${anime.name}</div>
     <div class="tile-rating">★ ${anime.score||''}</div>
   `;
-  div.onclick = () => showAnime(anime.id);
+  div.onclick = () => {
+    location.hash = "anime-"+anime.id;
+  };
   return div;
 }
 
@@ -29,7 +47,7 @@ async function renderCatalog(clear=false) {
   if (loading || !hasMore) return;
   loading=true;
   if (clear) { grid.innerHTML=''; catalogEnd.innerHTML=''; }
-  const {items, hasMore:more} = await getCatalog({page, query:currentQuery});
+  const {items, hasMore:more} = await getCatalog({page, query:currentQuery, genre: selectedGenre});
   all = clear ? items : all.concat(items);
   hasMore=more;
   grid.innerHTML = '';
@@ -50,65 +68,104 @@ async function renderCatalog(clear=false) {
 }
 
 async function showAnime(id) {
-  modal.style.display='flex';
-  modal.innerHTML = `<div class="anime-detail">Загрузка...<button class="close-detail">&times;</button></div>`;
-  try {
-    const anime = await getAnime(id);
+  const anime = await getAnime(id);
+  document.body.scrollTop = 0; // наверх
+  document.documentElement.scrollTop = 0;
+  // страница
+  document.body.innerHTML = `
+    <header>
+      <img src="assets/logo.png" class="logo" alt="">
+      <h1>Альманах База</h1>
+      <button class="back-detail" onclick="window.location.hash=''">← Назад</button>
+    </header>
+    <main style="max-width:760px;margin:auto;">
+      <div style="display:flex;gap:24px;align-items:flex-start;">
+        <img src="${anime.poster}" alt="" style="width:220px;height:300px;object-fit:cover;border-radius:15px;">
+        <div style="flex:1;">
+          <h2>${anime.name}</h2>
+          <small style="color:#798fff;opacity:.8;">★ ${anime.score||''}</small>
+          <div class="descr" style="margin:21px 0;">${stripHTML(anime.description)}</div>
+          <div id="links-switch" style="margin:20px 0;"></div>
+        </div>
+      </div>
+    </main>
+  `;
 
-    let currentType = 'RU';
-    let providersUsed = providers_ru;
+  let currentType = 'RU';
+  let providersUsed = providers_ru;
 
-    function renderLinksSwitcher() {
-      return `
-      <div style="display:flex;gap:9px;margin-bottom:10px;">
+  function renderLinksSwitcher() {
+    return `
+      <div style="display:flex;gap:9px;margin-bottom:12px;align-items:center;">
         <button id="ru-btn" class="switch-btn${currentType==='RU'?' act':''}">РУ</button>
         <button id="en-btn" class="switch-btn${currentType==='EN'?' act':''}">EN</button>
       </div>
       <div class="watch-list">
-        ${providersUsed.map(linkP => {
-          const link = linkP.getLink(anime);
-          return `<a href="${link.url}" target="_blank" rel="noopener">${link.site}</a>`;
+        ${providersUsed.map(p => {
+          if (typeof p.getLink === "function") {
+            let link = p.getLink(anime);
+            // поддержка асинхронных (например, AniLibria)
+            if (link instanceof Promise) link = '';
+            return link ? `<a href="${link.url}" target="_blank" rel="noopener">${p.title}</a>` : '';
+          }
         }).join('')}
       </div>
-      `;
-    }
-    modal.innerHTML = `
-      <div class="anime-detail">
-        <button class="close-detail">&times;</button>
-        <img src="${anime.poster}" alt="">
-        <h1>${anime.name}</h1>
-        <div class="descr">${stripHTML(anime.description)}</div>
-        <div id="links-switch">
-          ${renderLinksSwitcher()}
-        </div>
-      </div>`;
-    const $switchBlock = modal.querySelector('#links-switch');
-    modal.querySelector('.close-detail').onclick = ()=> {modal.style.display='none';};
-    function setHandlers() {
-      if ($switchBlock) {
-        if (modal.querySelector('#ru-btn'))
-          modal.querySelector('#ru-btn').onclick = () => {
-            currentType = 'RU'; providersUsed = providers_ru;
-            $switchBlock.innerHTML = renderLinksSwitcher(); setHandlers();
-          }
-        if (modal.querySelector('#en-btn'))
-          modal.querySelector('#en-btn').onclick = () => {
-            currentType = 'EN'; providersUsed = providers_en;
-            $switchBlock.innerHTML = renderLinksSwitcher(); setHandlers();
-          }
-      }
-    }
-    setHandlers();
-  } catch(err) {
-    modal.innerHTML = `<div class="anime-detail">
-      <button class="close-detail">&times;</button>
-      <div style="color:#b44;margin:14px 0;">Ошибка загрузки данных об аниме.</div>
-    </div>`;
-    modal.querySelector('.close-detail').onclick = ()=> {modal.style.display='none';};
+    `;
   }
+
+  function setHandlers() {
+    const $switchBlock = document.querySelector('#links-switch');
+    $switchBlock.innerHTML = renderLinksSwitcher();
+    if (document.querySelector('#ru-btn'))
+      document.querySelector('#ru-btn').onclick = () => { currentType = 'RU'; providersUsed = providers_ru; setHandlers(); }
+    if (document.querySelector('#en-btn'))
+      document.querySelector('#en-btn').onclick = () => { currentType = 'EN'; providersUsed = providers_en; setHandlers(); }
+  }
+  setHandlers();
 }
+
 function stripHTML(html) {
   const div = document.createElement('div'); div.innerHTML = html;
   return div.textContent || div.innerText || '';
 }
-window.onload = () => { renderCatalog(true);}
+
+// SPA-навигация
+function router() {
+  if (location.hash.startsWith('#anime-')) {
+    const id = +location.hash.replace('#anime-', '');
+    showAnime(id);
+  } else {
+    document.body.innerHTML = `
+      <header>
+        <img src="assets/logo.png" class="logo" alt="Логотип"/>
+        <h1>Альманах База</h1>
+        <form id="search-form">
+          <input id="search-input" placeholder="Поиск аниме..."/>
+        </form>
+      </header>
+      <main>
+        <div id="genre-container"></div>
+        <div id="anime-grid"></div>
+        <div id="catalog-end"></div>
+      </main>
+      <div id="modal-detail" style="display:none"></div>
+    `;
+    // Переинициализация после изменения innerHTML:
+    window.searchForm = document.getElementById('search-form');
+    window.searchInput = document.getElementById('search-input');
+    window.grid = document.getElementById('anime-grid');
+    window.catalogEnd = document.getElementById('catalog-end');
+    window.genreContainer = document.getElementById('genre-container');
+    page=1; all=[]; hasMore=true; observer=null; currentQuery=""; selectedGenre=null;
+    renderGenres();
+    renderCatalog(true);
+    searchForm.onsubmit = e => {
+      e.preventDefault();
+      currentQuery = searchInput.value.trim();
+      page = 1; all = []; hasMore = true; renderCatalog(true);
+    };
+  }
+}
+
+window.onhashchange = router;
+window.onload = router;
