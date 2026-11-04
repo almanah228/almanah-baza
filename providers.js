@@ -1,77 +1,63 @@
-// providers.js
-function slugName(anime) {
-  // только буквы/цифры для jut.su (можно доработать транслит)
-  return (anime.nameOriginal || "").replace(/[^a-zA-Z0-9_]/g, "_").toLowerCase();
-}
+// providers.js — простые ссылки по названию (поисковой странице)
 export const providers = [
   {
-  id: 'anilibria',
-  title: 'AniLibria',
-  type: 'RuSite',
-  async getLink(anime) {
-    try {
-      const resp = await fetch(
-        `https://api.anilibria.tv/v3/title/search?shikimori_id=${anime.id}`
-      );
-      if (!resp.ok) return null;
-      const data = await resp.json();
-      if (!data || !data.code) return null;
+    id: 'anilibria',
+    title: 'AniLibria',
+    getLink(anime) {
+      // Просто поиск по названию на AniLibria
+      const q = encodeURIComponent(anime.nameOriginal || anime.name);
       return {
         site: 'AniLibria',
-        url: `https://www.anilibria.tv/release/${data.code}.html`,
-        type: 'RuSite'
+        url: `https://www.anilibria.tv/search?search=${q}`,
+        type: 'Русский'
       };
-    } catch {
-      return null;
     }
-  }
-},
+  },
   {
     id: 'jutsu',
     title: 'Jut.su',
-    type: 'RuSite',
-    async getLink(anime) {
-      if (!anime.nameOriginal) return null;
+    getLink(anime) {
+      const q = encodeURIComponent(anime.nameOriginal || anime.name);
       return {
         site: 'Jut.su',
-        url: `https://jut.su/${slugName(anime)}/`,
-        type: 'RuSite'
+        url: `https://jut.su/anime/search.html?search=${q}`,
+        type: 'Русский'
       };
     }
   },
   {
     id: 'miruro',
-    title: 'Miruro.to',
-    type: 'EngSite',
-    async getLink(anime) {
+    title: 'Miruro',
+    getLink(anime) {
+      const q = encodeURIComponent(anime.nameOriginal || anime.name);
       return {
-        site: 'Miruro.to',
-        url: `https://miruro.to/anime/shikimori_${anime.id}`,
-        type: 'EngSite'
+        site: 'Miruro',
+        url: `https://miruro.ru/search?keyword=${q}`,
+        type: 'Русский'
       };
     }
   },
   {
     id: 'crunchyroll',
     title: 'Crunchyroll',
-    type: 'EngSite',
-    async getLink(anime) {
+    getLink(anime) {
+      const q = encodeURIComponent(anime.nameOriginal || anime.name);
       return {
         site: 'Crunchyroll',
-        url: `https://www.crunchyroll.com/search?q=${encodeURIComponent(anime.nameOriginal)}`,
-        type: 'EngSite'
+        url: `https://www.crunchyroll.com/search?q=${q}`,
+        type: 'Английский'
       };
     }
   },
   {
     id: 'netflix',
     title: 'Netflix',
-    type: 'EngSite',
-    async getLink(anime) {
+    getLink(anime) {
+      const q = encodeURIComponent(anime.nameOriginal || anime.name);
       return {
         site: 'Netflix',
-        url: `https://www.netflix.com/search?q=${encodeURIComponent(anime.nameOriginal)}`,
-        type: 'EngSite'
+        url: `https://www.netflix.com/search?q=${q}`,
+        type: 'Английский'
       };
     }
   }
